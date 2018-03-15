@@ -100,11 +100,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
 
         public void UploadFromFile(string path, FileMode mode)
         {
-            #if DOTNET_BUILD
-                _blob.UploadFromFileAsync(path).Wait();
-            #else
-                _blob.UploadFromFileAsync(path, mode).Wait();
-            #endif
+            _blob.UploadFromFile(path);
         }
 
         public void FetchAttributes()
