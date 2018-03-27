@@ -19,6 +19,7 @@ using System;
 using System.IO;
 using Microsoft.WindowsAzure.Storage.Auth;
 using Microsoft.WindowsAzure.Storage.Blob;
+using Org.Apache.REEF.Utilities.Logging;
 
 namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
 {
@@ -29,6 +30,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
     internal sealed class AzureCloudBlockBlob : ICloudBlockBlob
     {
         private readonly CloudBlockBlob _blob;
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof(AzureCloudBlockBlob));
 
         public ICloudBlob Blob
         {
@@ -56,6 +58,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
 
         public AzureCloudBlockBlob(Uri uri, StorageCredentials credentials)
         {
+            LOGGER.Log(Level.Info, "AzureCloudBlockBlob from {0}", uri);
             _blob = new CloudBlockBlob(uri, credentials);
         }
 
@@ -95,6 +98,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
 
         public void DownloadToFile(string path, FileMode mode)
         {
+            LOGGER.Log(Level.Info, "DownloadToFile to {0}", path);
             _blob.DownloadToFileAsync(path, mode).Wait();
         }
 
