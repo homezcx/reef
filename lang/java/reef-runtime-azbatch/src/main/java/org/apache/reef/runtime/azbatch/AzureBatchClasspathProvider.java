@@ -18,6 +18,7 @@
  */
 package org.apache.reef.runtime.azbatch;
 
+import org.apache.reef.annotations.audience.Private;
 import org.apache.reef.runtime.common.files.RuntimeClasspathProvider;
 
 import javax.inject.Inject;
@@ -27,13 +28,14 @@ import java.util.List;
 /**
  * Access to the classpath according to the REEF file system standard.
  */
-public class AzureBatchClasspathProvider implements RuntimeClasspathProvider {
+@Private
+public final class AzureBatchClasspathProvider implements RuntimeClasspathProvider {
 
   private final List<String> classPathPrefix;
   private final List<String> classPathSuffix;
 
   @Inject
-  AzureBatchClasspathProvider() {
+  private AzureBatchClasspathProvider() {
     this.classPathPrefix = new ArrayList<>();
     this.classPathSuffix = new ArrayList<>();
   }
