@@ -65,7 +65,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Storage
 
             string fileName = Path.GetFileName(filePath);
             CloudBlockBlob blob = directory.GetBlockBlobReference(fileName);
-            await blob.UploadFromFileAsync(filePath, FileMode.Open);
+            await blob.UploadFromFileAsync(filePath);
 
             string sas = blob.GetSharedAccessSignature(CreateSASPolicy());
             string uri = blob.Uri.AbsoluteUri;
