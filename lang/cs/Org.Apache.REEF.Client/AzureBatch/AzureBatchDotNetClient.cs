@@ -40,7 +40,7 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
         private readonly IInjector _injector;
         private readonly DriverFolderPreparationHelper _driverFolderPreparationHelper;
         private readonly REEFFileNames _fileNames;
-        private readonly IStorageUploader _storageUploader;
+        private readonly AzureStorageClient _azureStorageClient;
         private readonly JobRequestBuilderFactory _jobRequestBuilderFactory;
         private readonly AzureBatchService _batchService;
         private readonly JobJarMaker _jobJarMaker;
@@ -51,7 +51,7 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             IInjector injector,
             IResourceArchiveFileGenerator resourceArchiveFileGenerator,
             DriverFolderPreparationHelper driverFolderPreparationHelper,
-            IStorageUploader storageUploader,
+            AzureStorageClient azureStorageClient,
             REEFFileNames fileNames,
             AzureBatchFileNames azbatchFileNames,
             JobRequestBuilderFactory jobRequestBuilderFactory,
@@ -62,7 +62,7 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             _fileNames = fileNames;
             _azbatchFileNames = azbatchFileNames;
             _driverFolderPreparationHelper = driverFolderPreparationHelper;
-            _storageUploader = storageUploader;
+            _azureStorageClient = azureStorageClient;
             _jobRequestBuilderFactory = jobRequestBuilderFactory;
             _batchService = batchService;
             _jobJarMaker = jobJarMaker;
@@ -85,8 +85,8 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             string azureBatchjobId = CreateAzureJobId(jobId);
             string commandLine = GetCommand(jobRequest.JobParameters);
             string jarPath = _jobJarMaker.CreateJobSubmissionJAR(jobRequest, azureBatchjobId);
-            Uri blobUri = _storageUploader.UploadFile(_azbatchFileNames.GetStorageJobFolder(azureBatchjobId), jarPath).Result;
-            _batchService.CreateJob(azureBatchjobId, blobUri, commandLine);
+            Uri blobUri = _azureStorageClient.UploadFile(_azbatchFileNames.GetStorageJobFolder(azureBatchjobId), jarPath).Result;
+            _batchService.CreateJob(azureBatchjobId, blobUri, commandLine, _azureStorageClient.CreateContainerSharedAccessSignature());
         }
 
         private string GetCommand(JobParameters jobParameters)

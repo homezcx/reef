@@ -26,11 +26,11 @@ using System.Threading.Tasks;
 
 namespace Org.Apache.REEF.Client.AzureBatch.Storage
 {
-    internal class AzureStorageUploader : IStorageUploader
+    internal class AzureStorageClient
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(AzureStorageUploader));
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof(AzureStorageClient));
         private static readonly string StorageConnectionStringFormat = "DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}";
-        private static readonly int SASTokenValidityMinutes = 30;
+        private static readonly int SASTokenValidityMinutes = 60;
 
         private readonly string _storageAccountName;
         private readonly string _storageAccountKey;
@@ -39,7 +39,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Storage
         private readonly string _storageConnectionString;
 
         [Inject]
-        AzureStorageUploader(
+        AzureStorageClient(
             [Parameter(typeof(AzureStorageAccountName))] string storageAccountName,
             [Parameter(typeof(AzureStorageAccountKey))] string storageAccountKey,
             [Parameter(typeof(AzureStorageContainerName))] string storageContainerName)
@@ -74,6 +74,14 @@ namespace Org.Apache.REEF.Client.AzureBatch.Storage
             return uploadedFile;
         }
 
+        public string CreateContainerSharedAccessSignature()
+        {
+            CloudBlobClient cloudBlobClient = CloudStorageAccount.Parse(this._storageConnectionString).CreateCloudBlobClient();
+            CloudBlobContainer cloudBlobContainer = cloudBlobClient.GetContainerReference(this._storageContainerName);
+            cloudBlobContainer.CreateIfNotExists();
+            return cloudBlobContainer.GetSharedAccessSignature(CreateSASPolicy());
+        }
+
         private CloudBlobClient GetCloudBlobClient()
         {
             return CloudStorageAccount.Parse(this._storageConnectionString).CreateCloudBlobClient();
@@ -94,7 +102,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Storage
             {
                 SharedAccessStartTime = DateTime.UtcNow,
                 SharedAccessExpiryTime = DateTime.UtcNow.AddMinutes(SASTokenValidityMinutes),
-                Permissions = SharedAccessBlobPermissions.Read
+                Permissions = SharedAccessBlobPermissions.Read | SharedAccessBlobPermissions.Write
             };
         }
     }

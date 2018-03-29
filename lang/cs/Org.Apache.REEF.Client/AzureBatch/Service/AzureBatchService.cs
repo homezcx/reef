@@ -30,6 +30,7 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
     public class AzureBatchService : IDisposable
     {
         private static readonly Logger LOGGER = Logger.GetLogger(typeof(AzureBatchService));
+        private static readonly string AZURE_STORAGE_CONTAINER_SAS_TOKEN_ENV = "AZURE_STORAGE_CONTAINER_SAS_TOKEN_ENV";
 
         public BatchSharedKeyCredential Credentials { get; private set; }
         public string PoolId { get; private set; }
@@ -89,8 +90,17 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
 
         #region Job related operations
 
-        public void CreateJob(string jobId, Uri resourceFile, string commandLine)
+        public void CreateJob(string jobId, Uri resourceFile, string commandLine, string storageContainerSAS)
         {
+            EnvironmentSetting environmentSetting = new EnvironmentSetting(AZURE_STORAGE_CONTAINER_SAS_TOKEN_ENV, storageContainerSAS);
+
+            // This setting will signal Batch to generate an access token and pass it to the Job Manager Task (aka the Driver)
+            // as an environment variable.
+            // See https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.batch.cloudtask.authenticationtokensettings
+            // for more info.
+            AuthenticationTokenSettings authenticationTokenSettings = new AuthenticationTokenSettings();
+            authenticationTokenSettings.Access = AccessScope.Job;
+
             CloudJob unboundJob = this.Client.JobOperations.CreateJob();
             unboundJob.Id = jobId;
 
@@ -108,6 +118,8 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             };
 
             jobManager.RunExclusive = false;
+            jobManager.EnvironmentSettings = new List<EnvironmentSetting> { environmentSetting };
+            jobManager.AuthenticationTokenSettings = authenticationTokenSettings;
             unboundJob.JobManagerTask = jobManager;
             unboundJob.Commit();
             LOGGER.Log(Level.Info, "Submitted job {0}, commandLine {1} ", jobId, commandLine);

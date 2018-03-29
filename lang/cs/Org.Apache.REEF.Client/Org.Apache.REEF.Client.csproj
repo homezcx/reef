@@ -126,11 +126,10 @@ under the License.
     <Compile Include="AzureBatch\AzureBatchClientConfiguration.cs" />
     <Compile Include="AzureBatch\Util\AzureBatchCommandProviderConfiguration.cs" />
     <Compile Include="AzureBatch\AzureBatchDotNetClient.cs" />
-    <Compile Include="AzureBatch\Storage\AzureStorageUploader.cs" />
+    <Compile Include="AzureBatch\Storage\AzureStorageClient.cs" />
     <Compile Include="AzureBatch\Service\AzureBatchService.cs" />
     <Compile Include="AzureBatch\Util\AzureBatchFileNames.cs" />
     <Compile Include="AzureBatch\Util\ICommandBuilder.cs" />
-    <Compile Include="AzureBatch\Storage\IStorageUploader.cs" />
     <Compile Include="AzureBatch\Parameters\AzureBatchAccountKey.cs" />
     <Compile Include="AzureBatch\Parameters\AzureBatchAccountName.cs" />
     <Compile Include="AzureBatch\Parameters\AzureBatchAccountUri.cs" />
