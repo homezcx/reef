@@ -85,8 +85,10 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             string azureBatchjobId = CreateAzureJobId(jobId);
             string commandLine = GetCommand(jobRequest.JobParameters);
             string jarPath = _jobJarMaker.CreateJobSubmissionJAR(jobRequest, azureBatchjobId);
-            Uri blobUri = _azureStorageClient.UploadFile(_azbatchFileNames.GetStorageJobFolder(azureBatchjobId), jarPath).Result;
-            _batchService.CreateJob(azureBatchjobId, blobUri, commandLine, _azureStorageClient.CreateContainerSharedAccessSignature());
+            string destination = _azbatchFileNames.GetStorageJobFolder(azureBatchjobId);
+            Uri blobUri = _azureStorageClient.UploadFile(destination, jarPath).Result;
+            string sasToken = _azureStorageClient.CreateContainerSharedAccessSignature();
+            _batchService.CreateJob(azureBatchjobId, blobUri, commandLine, sasToken);
         }
 
         private string GetCommand(JobParameters jobParameters)
