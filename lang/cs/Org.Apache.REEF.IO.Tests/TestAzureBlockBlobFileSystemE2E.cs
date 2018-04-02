@@ -169,6 +169,8 @@ namespace Org.Apache.REEF.IO.Tests
             var helloFilePath = PathToFile(HelloFile);
             var blob = _container.GetBlockBlobReference(HelloFile);
             var tempFilePath = Path.GetTempFileName();
+            File.Delete(tempFilePath);
+
             const string Text = "hello";
             
             try
