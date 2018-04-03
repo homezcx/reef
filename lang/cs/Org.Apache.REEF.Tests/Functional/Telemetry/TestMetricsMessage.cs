@@ -15,11 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.IO;
 using Org.Apache.REEF.Common.Telemetry;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Tests.Functional.Telemetry.AzureBatch;
 using Org.Apache.REEF.Utilities.Logging;
 using Xunit;
 
@@ -35,7 +37,12 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
         public void TestMetricsMessages()
         {
             string testFolder = DefaultRuntimeFolder + TestId;
-            TestRun(DriverConfigurations(), typeof(MetricsDriver), 1, "sendMessages", "local", testFolder);
+            var metricServiceConfig = MetricsServiceConfigurationModule.ConfigurationModule
+                .Set(MetricsServiceConfigurationModule.OnMetricsSink, GenericType<DefaultMetricsSink>.Class)
+                .Set(MetricsServiceConfigurationModule.CounterSinkThreshold, "5")
+                .Build();
+
+            TestRun(DriverConfigurations(metricServiceConfig), typeof(MetricsDriver), 1, "sendMessages", "local", testFolder);
             ValidateSuccessForLocalRuntime(1, testFolder: testFolder);
             string[] lines = ReadLogFile(DriverStdout, "driver", testFolder, 240);
             var receivedCounterMessage = GetMessageCount(lines, "Received 2 counters with context message:");
@@ -47,7 +54,33 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
             CleanUp(testFolder);
         }
 
-        private static IConfiguration DriverConfigurations()
+        [Fact]
+        [Trait("Priority", "1")]
+        [Trait("Category", "FunctionalGated")]
+        [Trait("Description", "Test Evaluator Metrics send from evaluator to Metrics Service.")]
+        public void TestAzureBatchMetricsMessages()
+        {
+            string testFolder = DefaultRuntimeFolder + TestId;
+            string jobIdentifier = "sendMessagesAzureBatch";
+            string logLocation = Path.Combine(Path.GetTempPath(), "log" + TestId + ".txt");
+
+            var metricServiceConfig = MetricsServiceConfigurationModule.ConfigurationModule
+                .Set(MetricsServiceConfigurationModule.OnMetricsSink, GenericType<AzureMessageQueueMetricsSink>.Class)
+                .Set(MetricsServiceConfigurationModule.CounterSinkThreshold, "5")
+                .Build();
+
+            TestRun(DriverConfigurations(metricServiceConfig), typeof(MetricsDriver), 1, jobIdentifier, "azurebatch", testFolder);
+            AzureBatchMetricsMessageReceiver receiver = new AzureBatchMetricsMessageReceiver(logLocation);
+            receiver.RegisterOnMessageHandlerAndReceiveMessages();
+            WaitForCompleteForAzureBatchRuntime();
+            string[] lines = receiver.ReadLogFile();
+            var messageCount = GetMessageCount(lines, MetricsDriver.EventPrefix);
+            Assert.Equal(4, messageCount);
+
+            CleanUp(testFolder);
+        }
+
+        private static IConfiguration DriverConfigurations(IConfiguration metricServiceConfig)
         {
             var driverBasicConfig = DriverConfiguration.ConfigurationModule
                 .Set(DriverConfiguration.OnDriverStarted, GenericType<MetricsDriver>.Class)
@@ -55,11 +88,6 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
                 .Set(DriverConfiguration.OnContextActive, GenericType<MetricsDriver>.Class)
                 .Set(DriverConfiguration.OnTaskCompleted, GenericType<MetricsDriver>.Class)
                 .Set(DriverConfiguration.CustomTraceLevel, Level.Info.ToString())
-                .Build();
-
-            var metricServiceConfig = MetricsServiceConfigurationModule.ConfigurationModule
-                .Set(MetricsServiceConfigurationModule.OnMetricsSink, GenericType<DefaultMetricsSink>.Class)
-                .Set(MetricsServiceConfigurationModule.CounterSinkThreshold, "5")
                 .Build();
 
             var driverMetricConfig = DriverMetricsObserverConfigurationModule.ConfigurationModule.Build();
