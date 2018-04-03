@@ -15,11 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
+using System.IO;
 using Org.Apache.REEF.Common.Telemetry;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Tang.Implementations.Configuration;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
+using Org.Apache.REEF.Tests.Functional.Telemetry.AzureBatch;
 using Org.Apache.REEF.Utilities.Logging;
 using Xunit;
 
@@ -47,6 +49,26 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
             CleanUp(testFolder);
         }
 
+        [Fact]
+        [Trait("Priority", "1")]
+        [Trait("Category", "FunctionalGated")]
+        [Trait("Description", "Test Evaluator Metrics send from evaluator to Metrics Service.")]
+        public void TestAzureBatchMetricsMessages()
+        {
+            string testFolder = DefaultRuntimeFolder + TestId;
+            string jobIdentifier = "sendMessagesAzureBatch";
+            string logLocation = Path.Combine(Path.GetTempPath(), "log" + TestId + ".txt");
+            TestRun(DriverConfigurations(), typeof(MetricsDriver), 1, jobIdentifier, "azurebatch", testFolder);
+            AzureBatchMetricsMessageReceiver receiver = new AzureBatchMetricsMessageReceiver(logLocation);
+            receiver.RegisterOnMessageHandlerAndReceiveMessages();
+            WaitForCompleteForAzureBatchRuntime();
+            string[] lines = receiver.ReadLogFile();
+            var messageCount = GetMessageCount(lines, MetricsDriver.EventPrefix);
+            Assert.Equal(4, messageCount);
+
+            CleanUp(testFolder);
+        }
+
         private static IConfiguration DriverConfigurations()
         {
             var driverBasicConfig = DriverConfiguration.ConfigurationModule
@@ -58,7 +80,7 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
                 .Build();
 
             var metricServiceConfig = MetricsServiceConfigurationModule.ConfigurationModule
-                .Set(MetricsServiceConfigurationModule.OnMetricsSink, GenericType<DefaultMetricsSink>.Class)
+                .Set(MetricsServiceConfigurationModule.OnMetricsSink, GenericType<AzureMessageQueueMetricsSink>.Class)
                 .Set(MetricsServiceConfigurationModule.CounterSinkThreshold, "5")
                 .Build();
 

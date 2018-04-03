@@ -26,6 +26,7 @@ using System.Timers;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Org.Apache.REEF.Client.API;
+using Org.Apache.REEF.Client.AzureBatch;
 using Org.Apache.REEF.Client.Local;
 using Org.Apache.REEF.Client.Yarn;
 using Org.Apache.REEF.Network;
@@ -54,6 +55,7 @@ namespace Org.Apache.REEF.Tests.Functional
 
         private const string Local = "local";
         private const string YARN = "yarn";
+        private const string AzureBatch = "azurebatch";
         private const int SleepTime = 1000;
         private const string PortRangeStart = "8900";
         private const string PortRangeCount = "1000";
@@ -178,6 +180,14 @@ namespace Org.Apache.REEF.Tests.Functional
             {
                 Assert.True(lines.Any(line => line.Contains(expectedCancellationMessage)), "Did not find job cancellation message in log file. Expected message: " + expectedCancellationMessage);
             }
+        }
+
+        protected void WaitForCompleteForAzureBatchRuntime()
+        {
+            // TODO: There is a design defect in our runtime implementation: we are appending an UUID string to the Job ID. 
+            // In this case, the real Azure Batch Job ID will be unknown to client.
+            // The implementation here should be checking Job status by Job ID.
+            Thread.Sleep(TimeSpan.FromMinutes(2));
         }
 
         /// <summary>
@@ -393,6 +403,16 @@ namespace Org.Apache.REEF.Tests.Functional
                        .Set(TcpPortConfigurationModule.PortRangeCount, PortRangeCount)
                        .Build();
                     return Configurations.Merge(yarnClientConfig, tcpPortConfig, GetTcpConnectionConfiguration());
+                case AzureBatch:
+                    return AzureBatchRuntimeClientConfiguration.ConfigurationModule
+                        .Set(AzureBatchRuntimeClientConfiguration.AzureBatchAccountKey, @"###################################")
+                        .Set(AzureBatchRuntimeClientConfiguration.AzureBatchAccountName, @"###################################")
+                        .Set(AzureBatchRuntimeClientConfiguration.AzureBatchAccountUri, @"###################################")
+                        .Set(AzureBatchRuntimeClientConfiguration.AzureBatchPoolId, "###################################")
+                        .Set(AzureBatchRuntimeClientConfiguration.AzureStorageAccountKey, @"###################################")
+                        .Set(AzureBatchRuntimeClientConfiguration.AzureStorageAccountName, @"###################################")
+                        .Set(AzureBatchRuntimeClientConfiguration.AzureStorageContainerName, @"###################################")
+                        .Build();
                 default:
                     throw new Exception("Unknown runtime: " + runOnYarn);
             }
