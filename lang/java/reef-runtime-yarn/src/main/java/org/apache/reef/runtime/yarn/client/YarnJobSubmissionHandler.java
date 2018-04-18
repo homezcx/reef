@@ -107,7 +107,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
     try (final YarnSubmissionHelper submissionHelper = new YarnSubmissionHelper(this.yarnConfiguration,
         this.fileNames, this.classpath, this.yarnProxyUser, this.tokenProvider, this.isUnmanaged)) {
 
-      LOG.log(Level.FINE, "Assembling submission JAR for the Driver.");
+      LOG.log(Level.INFO, "Assembling submission JAR for the Driver.");
       final Optional<String> userBoundJobSubmissionDirectory =
           getUserBoundJobSubmissionDirectory(jobSubmissionEvent.getConfiguration());
       final JobFolder jobFolderOnDfs = userBoundJobSubmissionDirectory.isPresent()
@@ -129,7 +129,7 @@ final class YarnJobSubmissionHandler implements JobSubmissionHandler {
           .submit();
 
       this.applicationId = submissionHelper.getStringApplicationId();
-      LOG.log(Level.FINEST, "Submitted{0} job with ID {1} :: {2}", new String[] {
+      LOG.log(Level.INFO, "Submitted{0} job with ID {1} :: {2}", new String[] {
           this.isUnmanaged ? " UNMANAGED AM" : "", id, this.applicationId});
 
     } catch (final YarnException | IOException e) {

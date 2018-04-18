@@ -119,13 +119,13 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                         .Build();
                 case AzureBatch:
                     return AzureBatchRuntimeClientConfiguration.ConfigurationModule
-                        .Set(AzureBatchRuntimeClientConfiguration.AzureBatchAccountKey, @"##########################################")
-                        .Set(AzureBatchRuntimeClientConfiguration.AzureBatchAccountName, @"######")
-                        .Set(AzureBatchRuntimeClientConfiguration.AzureBatchAccountUri, @"######################")
-                        .Set(AzureBatchRuntimeClientConfiguration.AzureBatchPoolId, @"######")
-                        .Set(AzureBatchRuntimeClientConfiguration.AzureStorageAccountKey, "@##########################################")
-                        .Set(AzureBatchRuntimeClientConfiguration.AzureStorageAccountName, @"############")
-                        .Set(AzureBatchRuntimeClientConfiguration.AzureStorageContainerName, @"###########")
+                        .Set(AzureBatchRuntimeClientConfiguration.AzureBatchAccountKey, @"A4RPZnfg7G5EVtNyKE3xwHQCfSAGpIDIPhZegaCFF2pafJoWFynPAJ88vnekF6ACe8am9u/Dssw1pAimgBIilw==")
+                        .Set(AzureBatchRuntimeClientConfiguration.AzureBatchAccountName, @"reefbatch01")
+                        .Set(AzureBatchRuntimeClientConfiguration.AzureBatchAccountUri, @"https://reefbatch01.eastus.batch.azure.com")
+                        .Set(AzureBatchRuntimeClientConfiguration.AzureBatchPoolId, @"windowspool01")
+                        .Set(AzureBatchRuntimeClientConfiguration.AzureStorageAccountKey, @"fYjPZJ2UTi9ftCjT29wLsnQ82wXFJZiLWZ013MgCplVlcudTWwaaIVEvzgfYcasXqKUyn468KAZhdEsYCsbGkQ==")
+                        .Set(AzureBatchRuntimeClientConfiguration.AzureStorageAccountName, @"reefbatch01storage")
+                        .Set(AzureBatchRuntimeClientConfiguration.AzureStorageContainerName, @"reefcontainer")
                         .Build();
 
                 default:

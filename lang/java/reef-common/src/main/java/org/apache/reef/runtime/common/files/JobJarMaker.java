@@ -80,7 +80,7 @@ public final class JobJarMaker {
       final File sourceFile = toFile(fileProto);
       final File destinationFile = new File(destinationFolder, fileProto.getName());
       if (destinationFile.exists()) {
-        LOG.log(Level.FINEST,
+        LOG.log(Level.INFO,
             "Will not add {0} to the job jar because another file with the same name was already added.",
             sourceFile.getAbsolutePath()
         );
@@ -155,7 +155,7 @@ public final class JobJarMaker {
     public File build() throws IOException {
       // Copy all files to a local job submission folder
       final File jobSubmissionFolder = makeJobSubmissionFolder();
-      LOG.log(Level.FINE, "Staging submission in {0}", jobSubmissionFolder);
+      LOG.log(Level.INFO, "Staging submission in {0}", jobSubmissionFolder);
 
       final File localFolder = new File(jobSubmissionFolder, JobJarMaker.this.fileNames.getLocalFolderName());
       final File globalFolder = new File(jobSubmissionFolder, JobJarMaker.this.fileNames.getGlobalFolderName());
@@ -185,7 +185,7 @@ public final class JobJarMaker {
         }
         jarFile.deleteOnExit();
       } else {
-        LOG.log(Level.FINE, "Keeping the temporary job folder [{0}] and jar file [{1}] available after job submission.",
+        LOG.log(Level.INFO, "Keeping the temporary job folder [{0}] and jar file [{1}] available after job submission.",
             new Object[]{jobSubmissionFolder.getAbsolutePath(), jarFile.getAbsolutePath()});
       }
       return jarFile;

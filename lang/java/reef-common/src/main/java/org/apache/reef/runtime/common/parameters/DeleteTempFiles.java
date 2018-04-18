@@ -25,7 +25,7 @@ import org.apache.reef.tang.annotations.NamedParameter;
  * Whether or not to delete the temporary files created during Driver and Evaluator submission.
  */
 @NamedParameter(doc = "Whether or not to delete the temporary files created during Driver and Evaluator submission.",
-    default_value = "true")
+    default_value = "false")
 public final class DeleteTempFiles implements Name<Boolean> {
   private DeleteTempFiles() {
   }
