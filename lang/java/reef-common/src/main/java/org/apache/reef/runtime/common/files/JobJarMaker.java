@@ -160,7 +160,7 @@ public final class JobJarMaker {
       final File localFolder = new File(jobSubmissionFolder, JobJarMaker.this.fileNames.getLocalFolderName());
       final File globalFolder = new File(jobSubmissionFolder, JobJarMaker.this.fileNames.getGlobalFolderName());
 
-      JobJarMaker.copy(this.globalFiles, globalFolder);
+      //JobJarMaker.copy(this.globalFiles, globalFolder);
       JobJarMaker.copy(this.localFiles, localFolder);
 
       // Store the Configuration in the JAR file.

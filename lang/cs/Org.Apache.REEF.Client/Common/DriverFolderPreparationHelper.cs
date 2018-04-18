@@ -136,7 +136,6 @@ namespace Org.Apache.REEF.Client.Common
         {
             Directory.CreateDirectory(Path.Combine(driverFolderPath, _fileNames.GetReefFolderName()));
             Directory.CreateDirectory(Path.Combine(driverFolderPath, _fileNames.GetLocalFolderPath()));
-            Directory.CreateDirectory(Path.Combine(driverFolderPath, _fileNames.GetGlobalFolderPath()));
 
             var resourceHelper = new ResourceHelper(typeof(DriverFolderPreparationHelper).Assembly);
             foreach (var fileResources in ResourceHelper.FileResources)
@@ -162,15 +161,15 @@ namespace Org.Apache.REEF.Client.Common
 
             // generate .config file for Evaluator executable
             var userDefinedEvaluatorConfigFileName = Path.Combine(JarFolder, EvaluatorExecutableConfig);
-            var evaluatorConfigFilName = Path.Combine(driverFolderPath, _fileNames.GetGlobalFolderPath(), EvaluatorExecutableConfig);
+            //// var evaluatorConfigFilName = Path.Combine(driverFolderPath, _fileNames.GetGlobalFolderPath(), EvaluatorExecutableConfig);
             string evaluatorAppConfigString = DefaultDriverConfigurationFileContents;
 
             if (File.Exists(userDefinedEvaluatorConfigFileName))
             {
                 evaluatorAppConfigString = File.ReadAllText(userDefinedEvaluatorConfigFileName);
             }
-            Logger.Log(Level.Verbose, "Create EvaluatorConfigFile {0} with config {1}.", evaluatorConfigFilName, evaluatorAppConfigString);
-            File.WriteAllText(evaluatorConfigFilName, evaluatorAppConfigString);
+            //// Logger.Log(Level.Info, "Create EvaluatorConfigFile {0} with config {1}.", evaluatorConfigFilName, evaluatorAppConfigString);
+            //// File.WriteAllText(evaluatorConfigFilName, evaluatorAppConfigString);
         }
 
         private void InternalPrepareDriverFolder(AppParameters appParameters, string driverFolderPath)

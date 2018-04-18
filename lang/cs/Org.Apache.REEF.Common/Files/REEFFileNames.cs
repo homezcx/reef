@@ -78,6 +78,11 @@ namespace Org.Apache.REEF.Common.Files
             return REEF_BASE_FOLDER;
         }
 
+        public string GetSharedFolderName()
+        {
+            return "D:/batch/tasks/shared";
+        }
+        
         /// <summary>
         /// </summary>
         /// <returns>the name of the folder inside of REEF_BASE_FOLDER that houses the global files.</returns>
@@ -91,7 +96,7 @@ namespace Org.Apache.REEF.Common.Files
         /// <returns>the path to the global folder: REEF_BASE_FOLDER/GLOBAL_FOLDER</returns>
         public string GetGlobalFolderPath()
         {
-            return GLOBAL_FOLDER_PATH;
+            return Path.Combine(GetSharedFolderName(), GetGlobalFolderName());
         }
 
         /// <summary>

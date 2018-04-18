@@ -43,7 +43,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
             List<string> classpathList = new List<string>()
             {
                 string.Format("{0}/{1}/*", _fileNames.GetReefFolderName(), _fileNames.GetLocalFolderName()),
-                string.Format("{0}/{1}/*", _fileNames.GetReefFolderName(), _fileNames.GetGlobalFolderName())
+                string.Format("{0}/{1}/*", _fileNames.GetSharedFolderName(), _fileNames.GetGlobalFolderName())
             };
 
             return string.Format("'{0};'", string.Join(ClassPathSeparator, classpathList));

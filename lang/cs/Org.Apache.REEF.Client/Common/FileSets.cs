@@ -86,7 +86,7 @@ namespace Org.Apache.REEF.Client.Common
             }
             else
             {
-                _globalFileSet.Add(Path.GetFullPath(path));
+                Logger.Log(Level.Info, "SHARATH Skipping AddToGlobalFiles in test for file: " + path);
             }
         }
 
@@ -111,8 +111,8 @@ namespace Org.Apache.REEF.Client.Common
         {
             var localFolderPath = Path.Combine(driverFolderPath, _fileNames.GetLocalFolderPath());
             CopyAllToFolder(_localFileSet, localFolderPath);
-            var globalFolderPath = Path.Combine(driverFolderPath, _fileNames.GetGlobalFolderPath());
-            CopyAllToFolder(_globalFileSet, globalFolderPath);
+            //// var globalFolderPath = Path.Combine(driverFolderPath, _fileNames.GetGlobalFolderPath());
+            //// CopyAllToFolder(_globalFileSet, globalFolderPath);
         }
 
         /// <summary>

@@ -31,7 +31,7 @@ public final class REEFFileNames {
 
   private static final String REEF_BASE_FOLDER = "reef";
   private static final String GLOBAL_FOLDER = "global";
-  private static final String GLOBAL_FOLDER_PATH = REEF_BASE_FOLDER + '/' + GLOBAL_FOLDER;
+  private static final String GLOBAL_FOLDER_PATH = "D:/batch/tasks/shared" + '/' + GLOBAL_FOLDER;
   private static final String LOCAL_FOLDER = "local";
   private static final String LOCAL_FOLDER_PATH = REEF_BASE_FOLDER + '/' + LOCAL_FOLDER;
   private static final String DRIVER_CONFIGURATION_NAME = "driver.conf";

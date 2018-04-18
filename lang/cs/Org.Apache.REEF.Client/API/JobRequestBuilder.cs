@@ -53,7 +53,8 @@ namespace Org.Apache.REEF.Client.API
         /// </summary>
         public JobRequest Build()
         {
-            // If no assemblies have been added, default to those in the working directory
+            Logger.Log(Level.Info, "SHARATH Current working directory is " + Directory.GetCurrentDirectory());
+            //// If no assemblies have been added, default to those in the working directory
             if (!_assembliesAdded)
             {
                 Logger.Log(Level.Warning, "No assemlies added to the job; Adding assemblies from the current working directory.");
