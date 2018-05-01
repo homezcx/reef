@@ -32,8 +32,10 @@ import org.apache.reef.driver.restart.DriverRestartCompleted;
 import org.apache.reef.runtime.common.driver.DriverStatusManager;
 import org.apache.reef.runtime.common.driver.parameters.DefinedRuntimes;
 import org.apache.reef.runtime.common.files.REEFFileNames;
+import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.annotations.Unit;
+import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.util.Optional;
 import org.apache.reef.util.logging.CLRBufferedLogHandler;
 import org.apache.reef.util.logging.LoggingScope;
@@ -185,16 +187,25 @@ public final class JobDriver {
       }
 
       final String portNumber = httpServer == null ? null : Integer.toString(httpServer.getPort());
+      final String serverString = "http://" + localAddressProvider.getLocalAddress() + ":" + portNumber;
       if (portNumber != null) {
         try {
           final File outputFileName = new File(reefFileNames.getDriverHttpEndpoint());
           BufferedWriter out = new BufferedWriter(
               new OutputStreamWriter(new FileOutputStream(outputFileName), StandardCharsets.UTF_8));
-          out.write(localAddressProvider.getLocalAddress() + ":" + portNumber + "\n");
+          out.write( serverString + "\n");
           out.close();
         } catch (IOException ex) {
           throw new RuntimeException(ex);
         }
+      }
+
+      final HttpRequestProxy proxy;
+      try {
+        proxy = Tang.Factory.getTang().newInjector().getInstance(HttpRequestProxy.class);
+        proxy.startProcessing(serverString);
+      } catch (InjectionException e) {
+        e.printStackTrace();
       }
 
       this.evaluatorRequestorBridge =
