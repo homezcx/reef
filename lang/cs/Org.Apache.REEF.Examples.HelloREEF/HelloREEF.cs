@@ -20,7 +20,6 @@ using System.Globalization;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.AzureBatch;
 using Org.Apache.REEF.Client.Common;
-using Org.Apache.REEF.Client.DotNet.AzureBatch;
 using Org.Apache.REEF.Client.Local;
 using Org.Apache.REEF.Client.Yarn;
 using Org.Apache.REEF.Client.YARN.HDI;
@@ -76,9 +75,6 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                 .Build();
 
             IJobSubmissionResult jobSubmissionResult = _reefClient.SubmitAndGetJobStatus(helloJobRequest);
-
-            AzureStorageQueueReceiver receiver = new AzureStorageQueueReceiver();
-            receiver.StartProcessingAsync();
 
             // Wait for the Driver to complete.
             jobSubmissionResult?.WaitForDriverToFinish();

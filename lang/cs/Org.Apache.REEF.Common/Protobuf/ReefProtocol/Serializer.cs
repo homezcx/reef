@@ -118,4 +118,62 @@ namespace Org.Apache.REEF.Common.Protobuf.ReefProtocol
                 recovery);
         }
     }
+
+    /// <summary>
+    /// Add serializer/deserializer to HttpProxyRequestProto
+    /// </summary>
+    public partial class HttpProxyRequestProto
+    {
+        public static HttpProxyRequestProto Deserialize(byte[] bytes)
+        {
+            HttpProxyRequestProto pbuf = null;
+            using (var s = new MemoryStream(bytes))
+            {
+                pbuf = Serializer.Deserialize<HttpProxyRequestProto>(s);
+            }
+            return pbuf;
+        }
+
+        public byte[] Serialize()
+        {
+            byte[] b = null;
+            using (var s = new MemoryStream())
+            {
+                Serializer.Serialize<HttpProxyRequestProto>(s, this);
+                b = new byte[s.Position];
+                var fullBuffer = s.GetBuffer();
+                Array.Copy(fullBuffer, b, b.Length);
+            }
+            return b;
+        }
+    }
+
+    /// <summary>
+    /// Add serializer/deserializer to HttpProxyResponseProto
+    /// </summary>
+    public partial class HttpProxyResponseProto
+    {
+        public static HttpProxyResponseProto Deserialize(byte[] bytes)
+        {
+            HttpProxyResponseProto pbuf = null;
+            using (var s = new MemoryStream(bytes))
+            {
+                pbuf = Serializer.Deserialize<HttpProxyResponseProto>(s);
+            }
+            return pbuf;
+        }
+
+        public byte[] Serialize()
+        {
+            byte[] b = null;
+            using (var s = new MemoryStream())
+            {
+                Serializer.Serialize<HttpProxyResponseProto>(s, this);
+                b = new byte[s.Position];
+                var fullBuffer = s.GetBuffer();
+                Array.Copy(fullBuffer, b, b.Length);
+            }
+            return b;
+        }
+    }
 }

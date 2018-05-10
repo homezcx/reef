@@ -187,26 +187,22 @@ public final class JobDriver {
       }
 
       final String portNumber = httpServer == null ? null : Integer.toString(httpServer.getPort());
-      final String serverString = "http://" + localAddressProvider.getLocalAddress() + ":" + portNumber;
+      final String serverHostString = "http://" + localAddressProvider.getLocalAddress() + ":" + portNumber;
       if (portNumber != null) {
         try {
           final File outputFileName = new File(reefFileNames.getDriverHttpEndpoint());
           BufferedWriter out = new BufferedWriter(
               new OutputStreamWriter(new FileOutputStream(outputFileName), StandardCharsets.UTF_8));
-          out.write( serverString + "\n");
+          out.write( serverHostString + "\n");
           out.close();
         } catch (IOException ex) {
           throw new RuntimeException(ex);
         }
       }
 
-      final HttpRequestProxy proxy;
-      try {
-        proxy = Tang.Factory.getTang().newInjector().getInstance(HttpRequestProxy.class);
-        proxy.startProcessing(serverString);
-      } catch (InjectionException e) {
-        e.printStackTrace();
-      }
+      // TODO TASK 244273
+      final HttpRequestProxy proxy = new HttpRequestProxy(serverHostString);
+      proxy.startProcessing(serverHostString);
 
       this.evaluatorRequestorBridge =
           new EvaluatorRequestorBridge(JobDriver.this.evaluatorRequestor, false, loggingScopeFactory,

@@ -187,6 +187,9 @@ under the License.
     <Compile Include="Protobuf\ReefProtocol\ReefService.pb.cs">
       <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
     </Compile>
+    <Compile Include="Protobuf\ReefProtocol\ReefAzureBatchHttpProtos.pb.cs">
+      <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
+    </Compile>
     <Compile Include="Protobuf\ReefProtocol\Serializer.cs" />
     <Compile Include="Files\REEFFileNames.cs" />
     <Compile Include="Runtime\Evaluator\Constants.cs" />
@@ -276,6 +279,7 @@ under the License.
     <None Include="Protobuf\Proto\evaluator_runtime.proto" />
     <None Include="Protobuf\Proto\reef_protocol.proto" />
     <None Include="Protobuf\Proto\reef_service_protos.proto" />
+    <None Include="Protobuf\Proto\azurebatch_http_proxy.proto" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.csproj">

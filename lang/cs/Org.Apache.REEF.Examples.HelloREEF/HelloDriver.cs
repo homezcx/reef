@@ -16,10 +16,12 @@
 // under the License.
 
 using System;
+using System.IO;
+using Org.Apache.REEF.Client.DotNet.AzureBatch.HttpProxy;
+using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Evaluator;
-using Org.Apache.REEF.Examples.HelloREEF.DotNet;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Util;
 using Org.Apache.REEF.Utilities.Logging;
@@ -33,7 +35,6 @@ namespace Org.Apache.REEF.Examples.HelloREEF
     {
         private static readonly Logger _Logger = Logger.GetLogger(typeof(HelloDriver));
         private readonly IEvaluatorRequestor _evaluatorRequestor;
-        private AzureStorageQueueSender azureStorageQueueSender = new AzureStorageQueueSender();
 
         [Inject]
         private HelloDriver(IEvaluatorRequestor evaluatorRequestor)
@@ -48,7 +49,22 @@ namespace Org.Apache.REEF.Examples.HelloREEF
         public void OnNext(IAllocatedEvaluator allocatedEvaluator)
         {
             _Logger.Log(Level.Info, "Evaluator allocated: {0}", allocatedEvaluator);
-            azureStorageQueueSender.SendMessageAsync("Reef/v1/driver/");
+
+            // TODO: Task 244286
+            AzureStorageHttpProxyConnection httpProxyConnection = new AzureStorageHttpProxyConnection(
+                "###", "###", "chzhareefrequestqueue");
+
+            HttpProxyResponseProto response = httpProxyConnection.RequestMessageResponseAsync(new HttpProxyRequestProto()
+            {
+                endpoint = "Reef/v1/driver/",
+                id = Guid.NewGuid().ToString(),
+                responseQueue = "chzhareefresponsequeue"
+            }).GetAwaiter().GetResult();
+
+            if (response != null)
+            {
+                _Logger.Log(Level.Info, "Test Code response: {0}", response.responseBody);
+            }
 
             var taskConfiguration = TaskConfiguration.ConfigurationModule
                 .Set(TaskConfiguration.Identifier, "HelloTask")

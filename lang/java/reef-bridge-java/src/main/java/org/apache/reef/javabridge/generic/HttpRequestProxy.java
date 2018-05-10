@@ -23,32 +23,28 @@ import com.microsoft.windowsazure.storage.StorageException;
 import com.microsoft.windowsazure.storage.queue.CloudQueue;
 import com.microsoft.windowsazure.storage.queue.CloudQueueClient;
 import com.microsoft.windowsazure.storage.queue.CloudQueueMessage;
+import org.apache.commons.codec.binary.Base64;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.security.InvalidKeyException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static org.apache.reef.proto.azurebatch.ReefAzureBatchHttpProtos.*;
+
 /**
- *
+ * TODO: Task 244273
  */
 public class HttpRequestProxy {
 
   private static final Logger LOG = Logger.getLogger(HttpRequestProxy.class.getName());
-  private final String connectionString = "";
-  private final String queueName = "requestqueue";
+  private final String connectionString = "###";
+  private final String queueName = "###";
   private final CloudQueue messageQueue;
   private final HttpResponseProxy httpResponseProxy;
 
-  @Inject
-  HttpRequestProxy(final HttpResponseProxy httpResponseProxy) {
+  public HttpRequestProxy(final String serverHostString) {
     // Retrieve storage account from connection-string.
 
     try {
@@ -65,11 +61,11 @@ public class HttpRequestProxy {
       throw new RuntimeException("CloudQueue cannot be initialized. " + e);
     }
 
-    this.httpResponseProxy = httpResponseProxy;
+    this.httpResponseProxy = new HttpResponseProxy(serverHostString);
   }
 
-  public void startProcessing(final String serverString) {
-    LOG.log(Level.INFO, "startProcessing serverString " + serverString);
+  public void startProcessing(final String serverHostString) {
+    LOG.log(Level.INFO, "startProcessing serverString " + serverHostString);
     new Thread() {
       @Override
       public void run() {
@@ -82,25 +78,11 @@ public class HttpRequestProxy {
             } else {
               continue;
             }
-
-            LOG.log(Level.INFO, "HttpRequestProxy receives " + message.getMessageContentAsString());
-            HttpURLConnection connection = (HttpURLConnection) (new URL(serverString + '/' + message.getMessageContentAsString()).openConnection());
-            LOG.log(Level.INFO, "HttpRequestProxy response code " + connection.getResponseCode());
-            // Check response code
-            BufferedReader br;
-            if (HttpServletResponse.SC_OK == connection.getResponseCode()) {
-              br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            } else {
-              br = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
-            }
-
-            String output;
-            StringBuilder messageBuffer = new StringBuilder();
-            while (( output = br.readLine()) !=null){
-              messageBuffer.append(output);
-            }
-            LOG.log(Level.INFO, "HttpRequestProxy response body " + messageBuffer.toString());
-            httpResponseProxy.sendMessage(messageBuffer.toString());
+            LOG.log(Level.INFO, "retrieveMessage " + message.getMessageContentAsString());
+            // Use base64 encoding to work around https://github.com/Azure/azure-storage-net/issues/586, as REEF.Client is netstarndard 2.0 project.
+            // Submitting Jobs with Azure-Storage .NET45 results in MethodNotFound Exception if CloudQueueMessage is created with byte[].
+            HttpProxyRequestProto request = HttpProxyRequestProto.parseFrom(Base64.decodeBase64(message.getMessageContentAsByte()));
+            httpResponseProxy.sendResponse(request);
           } catch (StorageException | InterruptedException | IOException e) {
             e.printStackTrace();
             throw new RuntimeException("Http request cannot be sent. " + e);
