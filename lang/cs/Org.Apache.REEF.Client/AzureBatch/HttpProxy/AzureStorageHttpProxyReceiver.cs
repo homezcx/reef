@@ -28,16 +28,16 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch.HttpProxy
     /// <summary>
     /// The proxy class using Azure Storage Queue to get response from Driver Http Server.
     /// </summary>
-    internal class AzureStorageHttpProxyInternalReceiver
+    internal class AzureStorageHttpProxyReceiver
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(AzureStorageHttpProxyInternalReceiver));
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof(AzureStorageHttpProxyReceiver));
         private const string StorageConnectionStringFormat = "DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1};EndpointSuffix=core.windows.net";
         private const int BatchMessageMultiplier = 2;
         private const int BatchMessageMaxTryCount = 5;
         private readonly CloudQueue _queue;
         private readonly string _storageConnectionString;
 
-        public AzureStorageHttpProxyInternalReceiver(string storageAccountName, string storageAccountKey, string queueName)
+        public AzureStorageHttpProxyReceiver(string storageAccountName, string storageAccountKey, string queueName)
         {
 
             _storageConnectionString = string.Format(StorageConnectionStringFormat, new object[] { storageAccountName, storageAccountKey });

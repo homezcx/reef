@@ -27,15 +27,15 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch.HttpProxy
     /// <summary>
     /// The proxy class using Azure Storage Queue to communicate with Driver Http Server.
     /// </summary>
-    public class AzureStorageHttpProxyConnection
+    public class AzureStorageHttpConnectionProxy
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(AzureStorageHttpProxyConnection));
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof(AzureStorageHttpConnectionProxy));
         private const string StorageConnectionStringFormat = "DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1};EndpointSuffix=core.windows.net";
         private readonly CloudQueue _queue;
         private readonly string _storageAccountName;
         private readonly string _storageAccountKey;
 
-        public AzureStorageHttpProxyConnection(string storageAccountName, string storageAccountKey, string queueName)
+        public AzureStorageHttpConnectionProxy(string storageAccountName, string storageAccountKey, string queueName)
         {
             string storageConnectionString = string.Format(StorageConnectionStringFormat, new object[] { storageAccountName, storageAccountKey });
 
@@ -68,7 +68,7 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch.HttpProxy
             // Use base64 encoding to work around https://github.com/Azure/azure-storage-net/issues/586, as REEF.Client is netstarndard 2.0 project.
             // Submitting Jobs with Azure-Storage .NET45 results in MethodNotFound Exception if CloudQueueMessage is created with byte[].
             await _queue.AddMessageAsync(new CloudQueueMessage(Convert.ToBase64String(request.Serialize())));
-            AzureStorageHttpProxyInternalReceiver receiver = new AzureStorageHttpProxyInternalReceiver(_storageAccountName, _storageAccountKey, request.responseQueue);
+            AzureStorageHttpProxyReceiver receiver = new AzureStorageHttpProxyReceiver(_storageAccountName, _storageAccountKey, request.responseQueue);
             return await receiver.GetMessageAsync(request.id);
         }
     }

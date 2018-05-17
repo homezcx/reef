@@ -46,7 +46,8 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
             [Parameter(typeof(AzureBatchPoolId))] string azureBatchPoolId,
             [Parameter(typeof(AzureStorageAccountKey))] string azureStorageAccountKey,
             [Parameter(typeof(AzureStorageAccountName))] string azureStorageAccountName,
-            [Parameter(typeof(AzureStorageContainerName))] string azureStorageContainerName)
+            [Parameter(typeof(AzureStorageContainerName))] string azureStorageContainerName,
+            [Parameter(typeof(AzureStorageHttpProxyRequestQueueName))] string azureStorageHttpProxyRequestQueueName)
         {
             _resourceArchiveFileGenerator = resourceArchiveFileGenerator;
             _driverFolderPreparationHelper = driverFolderPreparationHelper;
@@ -60,7 +61,8 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
                 AzureStorageAccountKey = azureStorageAccountKey,
                 AzureStorageAccountName = azureStorageAccountName,
                 AzureStorageContainerName = azureStorageContainerName,
-                AzureBatchIsWindows = true
+                AzureBatchIsWindows = true,
+                AzureStorageHttpProxyRequestQueueName = azureStorageHttpProxyRequestQueueName
             };
         }
 

@@ -51,8 +51,8 @@ namespace Org.Apache.REEF.Examples.HelloREEF
             _Logger.Log(Level.Info, "Evaluator allocated: {0}", allocatedEvaluator);
 
             // TODO: Task 244286
-            AzureStorageHttpProxyConnection httpProxyConnection = new AzureStorageHttpProxyConnection(
-                "###", "###", "chzhareefrequestqueue");
+            AzureStorageHttpConnectionProxy httpProxyConnection = new AzureStorageHttpConnectionProxy(
+                "###", "###", "###");
 
             HttpProxyResponseProto response = httpProxyConnection.RequestMessageResponseAsync(new HttpProxyRequestProto()
             {

@@ -41,6 +41,7 @@ namespace Org.Apache.REEF.Client.AzureBatch
         public static readonly RequiredParameter<string> AzureStorageAccountName = new RequiredParameter<string>();
         public static readonly RequiredParameter<string> AzureStorageAccountKey = new RequiredParameter<string>();
         public static readonly RequiredParameter<string> AzureStorageContainerName = new RequiredParameter<string>();
+        public static readonly OptionalParameter<string> AzureStorageHttpProxyRequestQueueName = new OptionalParameter<string>();
 
         public static ConfigurationModule ConfigurationModule = new AzureBatchRuntimeClientConfiguration()
             .BindImplementation(GenericType<IREEFClient>.Class, GenericType<AzureBatchDotNetClient>.Class)
@@ -51,6 +52,7 @@ namespace Org.Apache.REEF.Client.AzureBatch
             .BindNamedParameter(GenericType<AzureStorageAccountName>.Class, AzureStorageAccountName)
             .BindNamedParameter(GenericType<AzureStorageAccountKey>.Class, AzureStorageAccountKey)
             .BindNamedParameter(GenericType<AzureStorageContainerName>.Class, AzureStorageContainerName)
+            .BindNamedParameter(GenericType<AzureStorageHttpProxyRequestQueueName>.Class, AzureStorageHttpProxyRequestQueueName)
             .Build();
 
         public static IConfiguration FromTextFile(string file)
