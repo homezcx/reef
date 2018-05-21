@@ -16,9 +16,6 @@
 // under the License.
 
 using System;
-using System.IO;
-using Org.Apache.REEF.Client.DotNet.AzureBatch.HttpProxy;
-using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Driver;
 using Org.Apache.REEF.Driver.Evaluator;
@@ -49,22 +46,6 @@ namespace Org.Apache.REEF.Examples.HelloREEF
         public void OnNext(IAllocatedEvaluator allocatedEvaluator)
         {
             _Logger.Log(Level.Info, "Evaluator allocated: {0}", allocatedEvaluator);
-
-            // TODO: Task 244286
-            AzureStorageHttpConnectionProxy httpProxyConnection = new AzureStorageHttpConnectionProxy(
-                "###", "###", "###");
-
-            HttpProxyResponseProto response = httpProxyConnection.RequestMessageResponseAsync(new HttpProxyRequestProto()
-            {
-                endpoint = "Reef/v1/driver/",
-                id = Guid.NewGuid().ToString(),
-                responseQueue = "chzhareefresponsequeue"
-            }).GetAwaiter().GetResult();
-
-            if (response != null)
-            {
-                _Logger.Log(Level.Info, "Test Code response: {0}", response.responseBody);
-            }
 
             var taskConfiguration = TaskConfiguration.ConfigurationModule
                 .Set(TaskConfiguration.Identifier, "HelloTask")

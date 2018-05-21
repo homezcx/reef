@@ -23,21 +23,21 @@ using Microsoft.WindowsAzure.Storage.Queue;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Utilities.Logging;
 
-namespace Org.Apache.REEF.Client.DotNet.AzureBatch.HttpProxy
+namespace Org.Apache.REEF.Client.DotNet.Common.HttpProxy
 {
     /// <summary>
     /// The proxy class using Azure Storage Queue to get response from Driver Http Server.
     /// </summary>
-    internal class AzureStorageHttpProxyReceiver
+    internal class AzureStorageQueueHttpProxyReceiver
     {
-        private static readonly Logger LOGGER = Logger.GetLogger(typeof(AzureStorageHttpProxyReceiver));
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof(AzureStorageQueueHttpProxyReceiver));
         private const string StorageConnectionStringFormat = "DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1};EndpointSuffix=core.windows.net";
         private const int BatchMessageMultiplier = 2;
         private const int BatchMessageMaxTryCount = 5;
         private readonly CloudQueue _queue;
         private readonly string _storageConnectionString;
 
-        public AzureStorageHttpProxyReceiver(string storageAccountName, string storageAccountKey, string queueName)
+        public AzureStorageQueueHttpProxyReceiver(string storageAccountName, string storageAccountKey, string queueName)
         {
 
             _storageConnectionString = string.Format(StorageConnectionStringFormat, new object[] { storageAccountName, storageAccountKey });
@@ -58,7 +58,7 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch.HttpProxy
             for (int i = 0; i < BatchMessageMaxTryCount; i++)
             {
                 // There is a delay in Azure Storage Queue for the messages to be able ready to retrive, after adding messages.
-                await Task.Delay(2000);
+                await Task.Delay(TimeSpan.FromSeconds(2));
                 IEnumerable<CloudQueueMessage> messages = await _queue.GetMessagesAsync(messageCount);
                 foreach (CloudQueueMessage message in messages)
                 {
