@@ -123,9 +123,10 @@ namespace Org.Apache.REEF.Client.Common
             if (DriverStatus.UNKNOWN == status)
             {
                 // We were unable to connect to the Driver at least once.
-                throw new WebException("Unable to connect to the Driver.");
+                // TODO: [REEF-2020]
+                throw new WebException("Unable to connect to the Driver. It could be caused by error or Driver has shutdown due to task completion");
             }
-            
+
             while (status.IsActive())
             {
                 try
@@ -137,10 +138,13 @@ namespace Org.Apache.REEF.Client.Common
                     // If we no longer can reach the Driver, it must have exited.
                     status = DriverStatus.UNKNOWN_EXITED;
                 }
+
+                // Take a 2 second break in the loop
+                Task.Delay(TimeSpan.FromSeconds(2)).GetAwaiter().GetResult();
             }
         }
 
-        private DriverStatus FetchDriverStatus()
+        protected virtual DriverStatus FetchDriverStatus()
         {
             string statusUrl = DriverUrl + "driverstatus/v1";
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(statusUrl);
@@ -156,7 +160,7 @@ namespace Org.Apache.REEF.Client.Common
         /// Fetches the Driver Status for the 1st time.
         /// </summary>
         /// <returns>The obtained Driver Status or DriverStatus.UNKNOWN, if the Driver was never reached.</returns>
-        private DriverStatus FetchFirstDriverStatus()
+        protected virtual DriverStatus FetchFirstDriverStatus()
         {
             var policy = new RetryPolicy<AllErrorsTransientStrategy>(_numberOfRetries, _retryInterval);
             return policy.ExecuteAction<DriverStatus>(FetchDriverStatus);

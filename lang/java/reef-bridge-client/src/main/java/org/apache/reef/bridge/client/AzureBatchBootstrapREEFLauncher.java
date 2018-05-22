@@ -38,6 +38,8 @@ import org.apache.reef.wake.time.Clock;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -61,9 +63,9 @@ public final class AzureBatchBootstrapREEFLauncher {
 
       final StringBuilder sb = new StringBuilder(
           "Bootstrap launcher should have one configuration file input," +
-          " specifying the job submission parameters to be deserialized" +
-          " to create the Azure Batch DriverConfiguration on the fly." +
-          " Current args are [ ");
+              " specifying the job submission parameters to be deserialized" +
+              " to create the Azure Batch DriverConfiguration on the fly." +
+              " Current args are [ ");
       for (String arg : args) {
         sb.append(arg).append(" ");
       }
@@ -73,10 +75,10 @@ public final class AzureBatchBootstrapREEFLauncher {
       throw fatal(message, new IllegalArgumentException(message));
     }
 
-    final File partialConfigFile = new File(args[0]);
+    final Configuration jobSubmissionConfig = generateConfigurationFromJobSubmissionParameters(new File(args[0]));
+
     final AzureBatchBootstrapDriverConfigGenerator azureBatchBootstrapDriverConfigGenerator =
-        TANG.newInjector(generateConfigurationFromJobSubmissionParameters(partialConfigFile))
-            .getInstance(AzureBatchBootstrapDriverConfigGenerator.class);
+        TANG.newInjector(jobSubmissionConfig).getInstance(AzureBatchBootstrapDriverConfigGenerator.class);
 
     final Configuration launcherConfig =
         TANG.newConfigurationBuilder()
@@ -85,6 +87,21 @@ public final class AzureBatchBootstrapREEFLauncher {
             .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
             .bindSetEntry(Clock.RuntimeStartHandler.class, PIDStoreStartHandler.class)
             .build();
+
+    final ExecutorService threadPool = Executors.newSingleThreadExecutor();
+    threadPool.execute(new Runnable() {
+      @Override
+      public void run() {
+        try {
+          final AzureStorageHttpConnectionProxy proxy =
+              TANG.newInjector(jobSubmissionConfig).getInstance(AzureStorageHttpConnectionProxy.class);
+          LOG.log(Level.INFO, "start AzureStorageHttpConnectionProxy...");
+          proxy.startProcessing();
+        } catch (InjectionException e) {
+          LOG.log(Level.WARNING, "Cannot initiate AzureStorageHttpConnectionProxy", e);
+        }
+      }
+    });
 
     try (final REEFEnvironment reef = REEFEnvironment.fromConfiguration(
         azureBatchBootstrapDriverConfigGenerator.getDriverConfigurationFromParams(args[0]), launcherConfig)) {
@@ -100,8 +117,7 @@ public final class AzureBatchBootstrapREEFLauncher {
 
   private static Configuration generateConfigurationFromJobSubmissionParameters(final File params) throws IOException {
 
-    final AvroAzureBatchJobSubmissionParameters avroAzureBatchJobSubmissionParameters;
-
+    AvroAzureBatchJobSubmissionParameters avroAzureBatchJobSubmissionParameters;
     try (final FileInputStream fileInputStream = new FileInputStream(params)) {
       final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(
           AvroAzureBatchJobSubmissionParameters.getClassSchema(), fileInputStream);
@@ -126,6 +142,8 @@ public final class AzureBatchBootstrapREEFLauncher {
             avroAzureBatchJobSubmissionParameters.getAzureStorageAccountKey().toString())
         .set(AzureBatchRuntimeConfiguration.AZURE_STORAGE_CONTAINER_NAME,
             avroAzureBatchJobSubmissionParameters.getAzureStorageContainerName().toString())
+        .set(AzureBatchRuntimeConfiguration.Azure_STORAGE_HTTP_PROXY_REQUEST_QUEUE_NAME,
+            avroAzureBatchJobSubmissionParameters.getAzureStorageHttpProxyRequestQueueName().toString())
         .build();
   }
 

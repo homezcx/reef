@@ -98,6 +98,12 @@ namespace Org.Apache.REEF.Client.Avro.AzureBatch
         public bool AzureBatchIsWindows { get; set; }
 
         /// <summary>
+        /// Gets or sets the AzureBatchIsWindows field.
+        /// </summary>
+        [DataMember]
+        public string AzureStorageHttpProxyRequestQueueName { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="AvroAzureBatchJobSubmissionParameters"/> class.
         /// </summary>
         public AvroAzureBatchJobSubmissionParameters()

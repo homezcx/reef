@@ -24,11 +24,11 @@ import org.apache.reef.driver.context.ClosedContext;
 import org.apache.reef.driver.context.ContextMessage;
 import org.apache.reef.driver.context.FailedContext;
 import org.apache.reef.driver.evaluator.*;
+import org.apache.reef.driver.restart.DriverRestartCompleted;
 import org.apache.reef.driver.restart.DriverRestarted;
 import org.apache.reef.driver.task.*;
 import org.apache.reef.io.network.naming.NameServer;
 import org.apache.reef.javabridge.*;
-import org.apache.reef.driver.restart.DriverRestartCompleted;
 import org.apache.reef.runtime.common.driver.DriverStatusManager;
 import org.apache.reef.runtime.common.driver.parameters.DefinedRuntimes;
 import org.apache.reef.runtime.common.files.REEFFileNames;
@@ -55,7 +55,10 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -190,7 +193,7 @@ public final class JobDriver {
           final File outputFileName = new File(reefFileNames.getDriverHttpEndpoint());
           BufferedWriter out = new BufferedWriter(
               new OutputStreamWriter(new FileOutputStream(outputFileName), StandardCharsets.UTF_8));
-          out.write(localAddressProvider.getLocalAddress() + ":" + portNumber + "\n");
+          out.write( "http://" + localAddressProvider.getLocalAddress() + ":" + portNumber + "\n");
           out.close();
         } catch (IOException ex) {
           throw new RuntimeException(ex);

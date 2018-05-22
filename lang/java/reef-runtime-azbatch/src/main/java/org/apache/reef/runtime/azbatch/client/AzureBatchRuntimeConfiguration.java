@@ -20,9 +20,12 @@ package org.apache.reef.runtime.azbatch.client;
 
 import org.apache.reef.annotations.audience.Public;
 import org.apache.reef.tang.Configuration;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
 import org.apache.reef.tang.formats.AvroConfigurationSerializer;
 
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
+import org.apache.reef.tang.formats.OptionalParameter;
 import org.apache.reef.tang.formats.RequiredParameter;
 
 import java.io.File;
@@ -73,6 +76,11 @@ public final class AzureBatchRuntimeConfiguration extends ConfigurationModuleBui
    * The Azure Storage container name.
    */
   public static final RequiredParameter<String> AZURE_STORAGE_CONTAINER_NAME = new RequiredParameter<>();
+
+  /**
+   * The Azure Storage Http proxy request queue.
+   */
+  public static final OptionalParameter<String> Azure_STORAGE_HTTP_PROXY_REQUEST_QUEUE_NAME = new OptionalParameter<>();
 
   /**
    * Create a {@link Configuration} object from an Avro configuration file.

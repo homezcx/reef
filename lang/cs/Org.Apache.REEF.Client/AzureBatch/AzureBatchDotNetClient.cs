@@ -27,6 +27,9 @@ using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Utilities.Logging;
+using Org.Apache.REEF.Client.API.Parameters;
+using Org.Apache.REEF.Client.AzureBatch.Parameters;
+using Org.Apache.REEF.Client.AzureBatch.Service;
 
 namespace Org.Apache.REEF.Client.DotNet.AzureBatch
 {
@@ -45,6 +48,12 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
         private readonly AzureBatchService _batchService;
         private readonly JobJarMaker _jobJarMaker;
         private readonly AzureBatchFileNames _azbatchFileNames;
+        private readonly int _retryInterval;
+        private readonly int _numberOfRetries;
+        private readonly string _azureStorageAccountName;
+        private readonly string _azureStorageAccountKey;
+        private readonly string _azureStorageHttpProxyRequestQueueName;
+        private readonly string _azureStorageHttpProxyDefaultResponseQueueName;
 
         [Inject]
         private AzureBatchDotNetClient(
@@ -56,7 +65,13 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             AzureBatchFileNames azbatchFileNames,
             JobRequestBuilderFactory jobRequestBuilderFactory,
             AzureBatchService batchService,
-            JobJarMaker jobJarMaker)
+            JobJarMaker jobJarMaker,
+            [Parameter(typeof(DriverHTTPConnectionRetryInterval))]int retryInterval,
+            [Parameter(typeof(DriverHTTPConnectionAttempts))] int numberOfRetries,
+            [Parameter(typeof(AzureStorageAccountName))] string azureStorageAccountName,
+            [Parameter(typeof(AzureStorageAccountKey))] string azureStorageAccountKey,
+            [Parameter(typeof(AzureStorageHttpProxyRequestQueueName))] string azureStorageHttpProxyRequestQueueName,
+            [Parameter(typeof(AzureStorageHttpProxyDefaultResponseQueueName))] string azureStorageHttpProxyDefaultResponseQueueName)
         {
             _injector = injector;
             _fileNames = fileNames;
@@ -66,6 +81,12 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             _jobRequestBuilderFactory = jobRequestBuilderFactory;
             _batchService = batchService;
             _jobJarMaker = jobJarMaker;
+            _retryInterval = retryInterval;
+            _numberOfRetries = numberOfRetries;
+            _azureStorageAccountName = azureStorageAccountName;
+            _azureStorageAccountKey = azureStorageAccountKey;
+            _azureStorageHttpProxyRequestQueueName = azureStorageHttpProxyRequestQueueName;
+            _azureStorageHttpProxyDefaultResponseQueueName = azureStorageHttpProxyDefaultResponseQueueName;
         }
 
         public JobRequestBuilder NewJobRequestBuilder()
@@ -124,8 +145,14 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
         public IJobSubmissionResult SubmitAndGetJobStatus(JobRequest jobRequest)
         {
             Submit(jobRequest);
-            /// Azure Batch is not able to comminicate to client through driver end point. It behaves the same as Submit(JobRequest jobRequest).
-            return null;
+            return new AzureStorageQueueJobSubmissionResult(
+                this,
+                _retryInterval,
+                _numberOfRetries,
+                _azureStorageAccountName,
+                _azureStorageAccountKey,
+                _azureStorageHttpProxyRequestQueueName,
+                _azureStorageHttpProxyDefaultResponseQueueName);
         }
 
         private string CreateAzureJobId(string jobId)

@@ -19,16 +19,10 @@
 package org.apache.reef.runtime.azbatch.client;
 
 import org.apache.reef.annotations.audience.Private;
-import org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountKey;
-import org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountName;
-import org.apache.reef.runtime.azbatch.parameters.AzureBatchAccountUri;
-import org.apache.reef.runtime.azbatch.parameters.AzureBatchPoolId;
+import org.apache.reef.runtime.azbatch.parameters.*;
 import org.apache.reef.runtime.azbatch.util.command.CommandBuilder;
 import org.apache.reef.runtime.azbatch.util.command.LinuxCommandBuilder;
 import org.apache.reef.runtime.azbatch.util.command.WindowsCommandBuilder;
-import org.apache.reef.runtime.azbatch.parameters.AzureStorageAccountKey;
-import org.apache.reef.runtime.azbatch.parameters.AzureStorageAccountName;
-import org.apache.reef.runtime.azbatch.parameters.AzureStorageContainerName;
 import org.apache.reef.tang.formats.ConfigurationModule;
 import org.apache.reef.tang.formats.ConfigurationModuleBuilder;
 
@@ -70,6 +64,8 @@ public final class AzureBatchRuntimeConfigurationCreator {
           .bindNamedParameter(AzureStorageAccountKey.class, AzureBatchRuntimeConfiguration.AZURE_STORAGE_ACCOUNT_KEY)
           .bindNamedParameter(
               AzureStorageContainerName.class, AzureBatchRuntimeConfiguration.AZURE_STORAGE_CONTAINER_NAME)
+          .bindNamedParameter(
+              AzureStorageHttpProxyRequestQueueName.class, AzureBatchRuntimeConfiguration.Azure_STORAGE_HTTP_PROXY_REQUEST_QUEUE_NAME)
           .build();
     }
 

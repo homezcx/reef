@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -170,6 +170,7 @@ under the License.
     <Compile Include="Metrics\MutableMetricsLayer\StatsHelperClass.cs" />
     <Compile Include="Poison\PoisonedEventHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Protobuf\ReefProtocol\AzurebatchHttpProxy.pb.cs" />
     <Compile Include="Protobuf\ReefProtocol\ClientRuntime.pb.cs">
       <ExcludeFromStyleCop>true</ExcludeFromStyleCop>
     </Compile>
@@ -276,6 +277,7 @@ under the License.
     <None Include="Protobuf\Proto\evaluator_runtime.proto" />
     <None Include="Protobuf\Proto\reef_protocol.proto" />
     <None Include="Protobuf\Proto\reef_service_protos.proto" />
+    <None Include="Protobuf\Proto\azurebatch_http_proxy.proto" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="$(SolutionDir)\Org.Apache.REEF.Tang\Org.Apache.REEF.Tang.csproj">
