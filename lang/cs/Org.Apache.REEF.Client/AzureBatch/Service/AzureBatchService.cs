@@ -26,7 +26,7 @@ using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Logging;
 using BatchSharedKeyCredential = Microsoft.Azure.Batch.Auth.BatchSharedKeyCredentials;
 
-namespace Org.Apache.REEF.Client.DotNet.AzureBatch
+namespace Org.Apache.REEF.Client.AzureBatch.Service
 {
     public sealed class AzureBatchService : IDisposable
     {

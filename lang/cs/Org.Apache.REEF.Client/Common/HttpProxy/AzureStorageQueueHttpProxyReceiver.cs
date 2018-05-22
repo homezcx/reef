@@ -23,7 +23,7 @@ using Microsoft.WindowsAzure.Storage.Queue;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Utilities.Logging;
 
-namespace Org.Apache.REEF.Client.DotNet.Common.HttpProxy
+namespace Org.Apache.REEF.Client.Common.HttpProxy
 {
     /// <summary>
     /// The proxy class using Azure Storage Queue to get response from Driver Http Server.
@@ -39,7 +39,6 @@ namespace Org.Apache.REEF.Client.DotNet.Common.HttpProxy
 
         public AzureStorageQueueHttpProxyReceiver(string storageAccountName, string storageAccountKey, string queueName)
         {
-
             _storageConnectionString = string.Format(StorageConnectionStringFormat, new object[] { storageAccountName, storageAccountKey });
 
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(_storageConnectionString);

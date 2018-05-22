@@ -19,11 +19,11 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Queue;
-using Org.Apache.REEF.Client.DotNet.Common.HttpProxy;
+using Org.Apache.REEF.Client.Common.HttpProxy;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using Org.Apache.REEF.Utilities.Logging;
 
-namespace Org.Apache.REEF.Client.DotNet.AzureBatch.HttpProxy
+namespace Org.Apache.REEF.Client.Common.HttpProxy
 {
     /// <summary>
     /// The proxy class using Azure Storage Queue to communicate with Driver Http Server.

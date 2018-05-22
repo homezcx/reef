@@ -19,12 +19,12 @@ using System;
 using System.IO;
 using Org.Apache.REEF.Utilities.Logging;
 using Org.Apache.REEF.Client.API;
-using Org.Apache.REEF.Client.Common;
-using Org.Apache.REEF.Client.DotNet.AzureBatch.HttpProxy;
 using Org.Apache.REEF.Common.Protobuf.ReefProtocol;
 using System.Threading.Tasks;
+using Org.Apache.REEF.Client.Common.HttpProxy;
+using System.Diagnostics.CodeAnalysis;
 
-namespace Org.Apache.REEF.Client.DotNet.Common
+namespace Org.Apache.REEF.Client.Common
 {
     internal class AzureStorageQueueJobSubmissionResult : JobSubmissionResult
     {
@@ -41,7 +41,7 @@ namespace Org.Apache.REEF.Client.DotNet.Common
             string azureStorageAccountKey,
             string azureStorageHttpProxyRequestQueueName,
             string azureStorageHttpProxyDefaultResponseQueueName)
-            : base(reefClient, default, numberOfRetries, retryInterval)
+               : base(reefClient, default(string), numberOfRetries, retryInterval)
         {
             _proxy = new AzureStorageQueueHttpConnectionProxy(azureStorageAccountName, azureStorageAccountKey, azureStorageHttpProxyRequestQueueName);
             _defaultResponseName = azureStorageHttpProxyDefaultResponseQueueName;
@@ -53,7 +53,7 @@ namespace Org.Apache.REEF.Client.DotNet.Common
         {
             // Azure Batch is not able to communicate to driver through driver endpoint. Leave this interface as empty.
             // TODO: Expect improvement by [REEF-2020]
-            return default;
+            return default(string);
         }
 
         protected override DriverStatus FetchFirstDriverStatus()

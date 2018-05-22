@@ -18,7 +18,7 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Client.AzureBatch.Parameters
 {
-    [NamedParameter(Documentation = "The Azure Batch Storage HTTP Proxy Request Queue", DefaultValue ="")]
+    [NamedParameter(Documentation = "The Azure Batch Storage HTTP Proxy Request Queue", DefaultValue = "")]
     public sealed class AzureStorageHttpProxyRequestQueueName : Name<string>
     {
     }
