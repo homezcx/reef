@@ -123,6 +123,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                         .Set(AzureBatchRuntimeClientConfiguration.AzureStorageAccountKey, @"##########################################")
                         .Set(AzureBatchRuntimeClientConfiguration.AzureStorageAccountName, @"############")
                         .Set(AzureBatchRuntimeClientConfiguration.AzureStorageContainerName, @"###########")
+                        .Set(AzureBatchRuntimeClientConfiguration.DriverHTTPConnectionRetryInterval, "20000")
                         .Build();
 
                 default:

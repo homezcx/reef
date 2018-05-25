@@ -123,6 +123,7 @@ under the License.
     <Compile Include="Avro\YARN\AvroYarnAppSubmissionParameters.cs" />
     <Compile Include="Avro\YARN\AvroYarnJobSubmissionParameters.cs" />
     <Compile Include="Avro\YARN\AvroYarnClusterJobSubmissionParameters.cs" />
+    <Compile Include="AzureBatch\AzureBatchJobSubmissionResult.cs" />
     <Compile Include="AzureBatch\AzureBatchRuntimeClientConfiguration.cs" />
     <Compile Include="AzureBatch\Util\AzureBatchCommandProviderConfiguration.cs" />
     <Compile Include="AzureBatch\AzureBatchDotNetClient.cs" />

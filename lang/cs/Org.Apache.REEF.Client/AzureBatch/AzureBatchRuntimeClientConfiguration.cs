@@ -16,6 +16,7 @@
 // under the License.
 
 using Org.Apache.REEF.Client.API;
+using Org.Apache.REEF.Client.API.Parameters;
 using Org.Apache.REEF.Client.AzureBatch.Parameters;
 using Org.Apache.REEF.Client.DotNet.AzureBatch;
 using Org.Apache.REEF.Tang.Formats;
@@ -42,6 +43,9 @@ namespace Org.Apache.REEF.Client.AzureBatch
         public static readonly RequiredParameter<string> AzureStorageAccountKey = new RequiredParameter<string>();
         public static readonly RequiredParameter<string> AzureStorageContainerName = new RequiredParameter<string>();
 
+        public static readonly OptionalParameter<int> DriverHTTPConnectionRetryInterval = new OptionalParameter<int>();
+        public static readonly OptionalParameter<int> DriverHTTPConnectionAttempts = new OptionalParameter<int>();
+
         public static ConfigurationModule ConfigurationModule = new AzureBatchRuntimeClientConfiguration()
             .BindImplementation(GenericType<IREEFClient>.Class, GenericType<AzureBatchDotNetClient>.Class)
             .BindNamedParameter(GenericType<AzureBatchAccountUri>.Class, AzureBatchAccountUri)
@@ -51,6 +55,8 @@ namespace Org.Apache.REEF.Client.AzureBatch
             .BindNamedParameter(GenericType<AzureStorageAccountName>.Class, AzureStorageAccountName)
             .BindNamedParameter(GenericType<AzureStorageAccountKey>.Class, AzureStorageAccountKey)
             .BindNamedParameter(GenericType<AzureStorageContainerName>.Class, AzureStorageContainerName)
+            .BindNamedParameter(GenericType<DriverHTTPConnectionRetryInterval>.Class, DriverHTTPConnectionRetryInterval)
+            .BindNamedParameter(GenericType<DriverHTTPConnectionAttempts>.Class, DriverHTTPConnectionAttempts)
             .Build();
 
         public static IConfiguration FromTextFile(string file)

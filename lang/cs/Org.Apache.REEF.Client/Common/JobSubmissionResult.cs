@@ -49,11 +49,20 @@ namespace Org.Apache.REEF.Client.Common
         private const string ThisIsStandbyRm = "This is standby RM";
         private const string AppJson = "application/json";
 
-        private string _driverUrl;
         protected string _appId;
 
         private readonly HttpClient _client;
         private readonly IREEFClient _reefClient;
+
+        /// <summary>
+        /// Url of http end point of the web server running in the driver
+        /// </summary>
+        private string _driverUrl;
+
+        /// <summary>
+        /// File path to the driver's http endpoint.
+        /// </summary>
+        private readonly string _filePath;
 
         /// <summary>
         /// Number of retries when connecting to the Driver's HTTP endpoint.
@@ -74,7 +83,7 @@ namespace Org.Apache.REEF.Client.Common
             };
             _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(AppJson));
 
-            _driverUrl = GetDriverUrl(filePath);
+            _filePath = filePath;
 
             _numberOfRetries = numberOfRetries;
             _retryInterval = TimeSpan.FromMilliseconds(retryInterval);
@@ -85,7 +94,17 @@ namespace Org.Apache.REEF.Client.Common
         /// </summary>
         public string DriverUrl
         {
-            get { return _driverUrl; }
+            get
+            {
+                if (_driverUrl != null)
+                {
+                    return _driverUrl;
+                }
+
+                var policy = new RetryPolicy<AllErrorsTransientStrategy>(_numberOfRetries, _retryInterval);
+                _driverUrl = policy.ExecuteAction(() => GetDriverUrl(_filePath));
+                return _driverUrl;
+            }
         }
 
         /// <summary>
@@ -125,9 +144,13 @@ namespace Org.Apache.REEF.Client.Common
                 // We were unable to connect to the Driver at least once.
                 throw new WebException("Unable to connect to the Driver.");
             }
-            
+
             while (status.IsActive())
             {
+                // Add 2 seconds sleep in while loop
+                Task.Delay(TimeSpan.FromSeconds(2)).GetAwaiter().GetResult();
+                LOGGER.Log(Level.Info, "DriverStatus is " + status);
+
                 try
                 {
                     status = FetchDriverStatus();
