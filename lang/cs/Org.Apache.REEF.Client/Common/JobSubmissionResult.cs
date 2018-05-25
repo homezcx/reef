@@ -146,7 +146,7 @@ namespace Org.Apache.REEF.Client.Common
 
             while (status.IsActive())
             {
-                // Add 4 seconds sleep in while loop, which alligns with default headt beat interval.
+                // Add sleep in while loop, whose value alligns with default heart beat interval.
                 Task.Delay(TimeSpan.FromSeconds(DriverStatusIntervalInSecond)).GetAwaiter().GetResult();
                 LOGGER.Log(Level.Info, "DriverStatus is " + status);
 
