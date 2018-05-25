@@ -65,7 +65,7 @@ namespace Org.Apache.REEF.Client.DotNet.AzureBatch
             JobRequestBuilderFactory jobRequestBuilderFactory,
             AzureBatchService batchService,
             JobJarMaker jobJarMaker,
-            //// Those parameters are used in AzureBatchJobSubmissionResult, but could not be injected in AzureBatchJobSubmissionResult.
+            //// Those parameters are used in AzureBatchJobSubmissionResult, but could not be injected there.
             //// It introduces circular injection issues, as all classes constructor inherited from JobSubmissionResult has reference to IREEFClient. 
             //// TODO: [REEF-2020] Refactor IJobSubmissionResult Interface and JobSubmissionResult implementation
             [Parameter(typeof(DriverHTTPConnectionRetryInterval))]int retryInterval,

@@ -83,9 +83,17 @@ namespace Org.Apache.REEF.Client.AzureBatch
             }
 
             string driverHostData = httpEndPointFile.ReadAsString();
-
-            //// Remove last charactor '\n'
-            string driverHost = httpEndPointFile.ReadAsString().Substring(0, driverHostData.Length - 1);
+            string driverHost;
+            if (driverHostData.Length > 0)
+            {
+                //// Remove last charactor '\n'
+                driverHost = driverHostData.Substring(0, driverHostData.Length - 1);
+            }
+            else
+            {
+                LOGGER.Log(Level.Warning, "unable to get driver http endpoint. The format in remote file is not correct.");
+                return null;
+            }
 
             //// Get port
             string[] driverIpAndPorts = driverHost.Split(':');
