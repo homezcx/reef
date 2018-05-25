@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Azure.Batch;
+using Microsoft.Azure.Batch.Common;
 #if REEF_DOTNET_BUILD
 using Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling;
 #else
@@ -28,7 +29,6 @@ using Microsoft.Practices.TransientFaultHandling;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Utilities.Logging;
-using BatchErrorException = Microsoft.Azure.Batch.Protocol.Models.BatchErrorException;
 using BatchSharedKeyCredential = Microsoft.Azure.Batch.Auth.BatchSharedKeyCredentials;
 
 namespace Org.Apache.REEF.Client.AzureBatch
@@ -77,10 +77,9 @@ namespace Org.Apache.REEF.Client.AzureBatch
             {
                 httpEndPointFile = driverTask.GetNodeFile(Path.Combine(AzureBatchTaskWorkDirectory, filepath));
             }
-            catch (BatchErrorException e)
+            catch (BatchException e)
             {
-                LOGGER.Log(Level.Warning, "unable to get driver http endpoint file", e);
-                return null;
+                throw new InvalidOperationException("driver http endpoint file is not ready.", e);
             }
 
             string driverHostData = httpEndPointFile.ReadAsString();
@@ -97,7 +96,7 @@ namespace Org.Apache.REEF.Client.AzureBatch
             }
             else
             {
-                LOGGER.Log(Level.Warning, "unable to get driver http endpoint port");
+                LOGGER.Log(Level.Warning, "unable to get driver http endpoint port. The format in remote file is not correct.");
                 return null;
             }
 

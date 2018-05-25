@@ -48,7 +48,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -85,7 +87,9 @@ public final class AzureBatchBootstrapREEFLauncher {
     }
 
     final File partialConfigFile = new File(args[0]);
-    final Injector injector = TANG.newInjector(generateConfigurationFromJobSubmissionParameters(partialConfigFile));
+    final AvroAzureBatchJobSubmissionParameters jobSubmissionParam =
+        generateAvroAzureBatchJobSubmissionParameters((partialConfigFile));
+    final Injector injector = TANG.newInjector(generateConfigurationFromJobSubmissionParameters(jobSubmissionParam));
     final AzureBatchBootstrapDriverConfigGenerator azureBatchBootstrapDriverConfigGenerator =
         injector.getInstance(AzureBatchBootstrapDriverConfigGenerator.class);
 
@@ -96,15 +100,27 @@ public final class AzureBatchBootstrapREEFLauncher {
             .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
             .bindSetEntry(Clock.RuntimeStartHandler.class, PIDStoreStartHandler.class);
 
-    // Check if user has set up inbound NAT pool rules.
+    // Check if user has set up inbound NAT pool rules and whitelist ports to use.
     // If set, we prefer will launch driver that binds to port in InboundNATPool.
-    final List<String> availablePorts = getAzureBatchInBoundNatPoolBackendPorts(
-        injector.getInstance(SharedKeyBatchCredentialProvider.class).getCredentials(),
-        injector.getNamedInstance(AzureBatchPoolId.class));
+    final List<CharSequence> whiteListPorts = jobSubmissionParam.getAzureBatchPoolDriverPortsList();
 
-    if (availablePorts != null) {
-      launcherConfigBuilder.bindList(TcpPortList.class, availablePorts)
-          .bindImplementation(TcpPortProvider.class, ListTcpPortProvider.class);
+    if (whiteListPorts != null && whiteListPorts.size() != 0) {
+      final Set<String> inBoundNatPoolBackendPorts = getAzureBatchInBoundNatPoolBackendPorts(
+          injector.getInstance(SharedKeyBatchCredentialProvider.class).getCredentials(),
+          injector.getNamedInstance(AzureBatchPoolId.class));
+
+      List<String> availablePorts = new ArrayList<>();
+      for(CharSequence whitelistPort : whiteListPorts){
+        String whileListPortString = whitelistPort.toString();
+        if(inBoundNatPoolBackendPorts.contains(whileListPortString)){
+          availablePorts.add(whileListPortString);
+        }
+      }
+
+      if(availablePorts.size() > 0) {
+        launcherConfigBuilder.bindList(TcpPortList.class, availablePorts)
+            .bindImplementation(TcpPortProvider.class, ListTcpPortProvider.class);
+      }
     }
 
     final Configuration launcherConfig = launcherConfigBuilder.build();
@@ -121,10 +137,9 @@ public final class AzureBatchBootstrapREEFLauncher {
     System.exit(0); // TODO[REEF-1715]: Should be able to exit cleanly at the end of main()
   }
 
-  private static Configuration generateConfigurationFromJobSubmissionParameters(final File params) throws IOException {
-
+  private static AvroAzureBatchJobSubmissionParameters generateAvroAzureBatchJobSubmissionParameters(
+      final File params)throws IOException {
     final AvroAzureBatchJobSubmissionParameters avroAzureBatchJobSubmissionParameters;
-
     try (final FileInputStream fileInputStream = new FileInputStream(params)) {
       final JsonDecoder decoder = DecoderFactory.get().jsonDecoder(
           AvroAzureBatchJobSubmissionParameters.getClassSchema(), fileInputStream);
@@ -132,7 +147,11 @@ public final class AzureBatchBootstrapREEFLauncher {
           new SpecificDatumReader<>(AvroAzureBatchJobSubmissionParameters.class);
       avroAzureBatchJobSubmissionParameters = reader.read(null, decoder);
     }
+    return avroAzureBatchJobSubmissionParameters;
+  }
 
+  private static Configuration generateConfigurationFromJobSubmissionParameters(
+      final AvroAzureBatchJobSubmissionParameters avroAzureBatchJobSubmissionParameters) {
     return AzureBatchRuntimeConfigurationCreator
         .getOrCreateAzureBatchRuntimeConfiguration(avroAzureBatchJobSubmissionParameters.getAzureBatchIsWindows())
         .set(AzureBatchRuntimeConfiguration.AZURE_BATCH_ACCOUNT_NAME,
@@ -152,7 +171,8 @@ public final class AzureBatchBootstrapREEFLauncher {
         .build();
   }
 
-  private static List<String> getAzureBatchInBoundNatPoolBackendPorts(final BatchCredentials credentials, final String poolId) {
+  private static Set<String> getAzureBatchInBoundNatPoolBackendPorts(
+      final BatchCredentials credentials, final String poolId) {
     final BatchClient client = BatchClient.open(credentials);
     final NetworkConfiguration networkConfiguration;
 
@@ -173,7 +193,7 @@ public final class AzureBatchBootstrapREEFLauncher {
     }
 
     final List<InboundNATPool> inboundNATpools = endpointConfiguration.inboundNATPools();
-    final List<String> backendPorts = new ArrayList();
+    final Set<String> backendPorts = new HashSet<>();
     for (InboundNATPool pool : inboundNATpools) {
       backendPorts.add(String.valueOf(pool.backendPort()));
     }

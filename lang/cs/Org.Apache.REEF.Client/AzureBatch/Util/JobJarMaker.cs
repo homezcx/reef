@@ -24,6 +24,7 @@ using Org.Apache.REEF.Common.Avro;
 using Org.Apache.REEF.Common.Files;
 using Org.Apache.REEF.Tang.Annotations;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Org.Apache.REEF.Client.AzureBatch.Util
@@ -46,7 +47,8 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
             [Parameter(typeof(AzureBatchPoolId))] string azureBatchPoolId,
             [Parameter(typeof(AzureStorageAccountKey))] string azureStorageAccountKey,
             [Parameter(typeof(AzureStorageAccountName))] string azureStorageAccountName,
-            [Parameter(typeof(AzureStorageContainerName))] string azureStorageContainerName)
+            [Parameter(typeof(AzureStorageContainerName))] string azureStorageContainerName,
+            [Parameter(typeof(AzureBatchPoolDriverPortsList))] List<string> azureBatchPoolDriverPortsList)
         {
             _resourceArchiveFileGenerator = resourceArchiveFileGenerator;
             _driverFolderPreparationHelper = driverFolderPreparationHelper;
@@ -60,6 +62,7 @@ namespace Org.Apache.REEF.Client.AzureBatch.Util
                 AzureStorageAccountKey = azureStorageAccountKey,
                 AzureStorageAccountName = azureStorageAccountName,
                 AzureStorageContainerName = azureStorageContainerName,
+                AzureBatchPoolDriverPortsList = azureBatchPoolDriverPortsList,
                 AzureBatchIsWindows = true
             };
         }

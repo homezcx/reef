@@ -80,7 +80,8 @@
         { "name": "AzureStorageAccountKey", "type": "string" },
         { "name": "AzureStorageAccountName", "type": "string" },
         { "name": "AzureStorageContainerName", "type": "string" },
-        { "name": "AzureBatchIsWindows", "type": "boolean" }
+        { "name": "AzureBatchIsWindows", "type": "boolean" },
+        { "name": "AzureBatchPoolDriverPortsList", "type": {"type": "array", "items": "string"}}
       ]
   }
 ]

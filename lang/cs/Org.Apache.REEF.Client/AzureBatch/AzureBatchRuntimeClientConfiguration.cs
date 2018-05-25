@@ -23,6 +23,7 @@ using Org.Apache.REEF.Tang.Formats;
 using Org.Apache.REEF.Tang.Interface;
 using Org.Apache.REEF.Tang.Util;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Org.Apache.REEF.Client.AzureBatch
@@ -46,6 +47,8 @@ namespace Org.Apache.REEF.Client.AzureBatch
         public static readonly OptionalParameter<int> DriverHTTPConnectionRetryInterval = new OptionalParameter<int>();
         public static readonly OptionalParameter<int> DriverHTTPConnectionAttempts = new OptionalParameter<int>();
 
+        public static readonly OptionalParameter<IList<string>> AzureBatchPoolDriverPortsList = new OptionalParameter<IList<string>>();
+
         public static ConfigurationModule ConfigurationModule = new AzureBatchRuntimeClientConfiguration()
             .BindImplementation(GenericType<IREEFClient>.Class, GenericType<AzureBatchDotNetClient>.Class)
             .BindNamedParameter(GenericType<AzureBatchAccountUri>.Class, AzureBatchAccountUri)
@@ -57,6 +60,7 @@ namespace Org.Apache.REEF.Client.AzureBatch
             .BindNamedParameter(GenericType<AzureStorageContainerName>.Class, AzureStorageContainerName)
             .BindNamedParameter(GenericType<DriverHTTPConnectionRetryInterval>.Class, DriverHTTPConnectionRetryInterval)
             .BindNamedParameter(GenericType<DriverHTTPConnectionAttempts>.Class, DriverHTTPConnectionAttempts)
+            .BindNamedParameter(GenericType<AzureBatchPoolDriverPortsList>.Class, AzureBatchPoolDriverPortsList)
             .Build();
 
         public static IConfiguration FromTextFile(string file)

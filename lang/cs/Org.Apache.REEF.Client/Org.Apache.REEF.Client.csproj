@@ -125,6 +125,7 @@ under the License.
     <Compile Include="Avro\YARN\AvroYarnClusterJobSubmissionParameters.cs" />
     <Compile Include="AzureBatch\AzureBatchJobSubmissionResult.cs" />
     <Compile Include="AzureBatch\AzureBatchRuntimeClientConfiguration.cs" />
+    <Compile Include="AzureBatch\Parameters\AzureBatchPoolDriverPortsList.cs" />
     <Compile Include="AzureBatch\Util\AzureBatchCommandProviderConfiguration.cs" />
     <Compile Include="AzureBatch\AzureBatchDotNetClient.cs" />
     <Compile Include="AzureBatch\Storage\AzureStorageClient.cs" />
