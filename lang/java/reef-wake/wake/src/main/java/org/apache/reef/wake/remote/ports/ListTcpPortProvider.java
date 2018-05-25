@@ -32,14 +32,14 @@ import java.util.logging.Logger;
 /**
  * A TcpPortProvider which gives out random ports in a range.
  */
-public final class ArrayTcpPortProvider implements TcpPortProvider {
+public final class ListTcpPortProvider implements TcpPortProvider {
 
-  private static final Logger LOG = Logger.getLogger(ArrayTcpPortProvider.class.getName());
-  private final List<Integer> tcpPortArray;
+  private static final Logger LOG = Logger.getLogger(ListTcpPortProvider.class.getName());
+  private final List<Integer> tcpPortList;
 
   @Inject
-  public ArrayTcpPortProvider(@Parameter(TcpPortArray.class) final List<Integer> tcpPortArray) {
-    this.tcpPortArray = tcpPortArray;
+  public ListTcpPortProvider(@Parameter(TcpPortArray.class) final List<Integer> tcpPortList) {
+    this.tcpPortList = tcpPortList;
     LOG.log(Level.FINE, "Instantiating " + this);
   }
 
@@ -50,11 +50,11 @@ public final class ArrayTcpPortProvider implements TcpPortProvider {
    */
   @Override
   public Iterator<Integer> iterator() {
-    return this.tcpPortArray.iterator();
+    return this.tcpPortList.iterator();
   }
 
   @Override
   public String toString() {
-    return "ArrayTcpPortProvider{" + StringUtils.join(this.tcpPortArray, ',') + '}';
+    return "ListTcpPortProvider{" + StringUtils.join(this.tcpPortList, ',') + '}';
   }
 }

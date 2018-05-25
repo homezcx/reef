@@ -39,7 +39,7 @@ import org.apache.reef.runtime.common.launch.REEFMessageCodec;
 import org.apache.reef.tang.*;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.remote.RemoteConfiguration;
-import org.apache.reef.wake.remote.ports.ArrayTcpPortProvider;
+import org.apache.reef.wake.remote.ports.ListTcpPortProvider;
 import org.apache.reef.wake.remote.ports.TcpPortProvider;
 import org.apache.reef.wake.remote.ports.parameters.TcpPortArray;
 import org.apache.reef.wake.time.Clock;
@@ -96,13 +96,15 @@ public final class AzureBatchBootstrapREEFLauncher {
             .bindNamedParameter(RemoteConfiguration.MessageCodec.class, REEFMessageCodec.class)
             .bindSetEntry(Clock.RuntimeStartHandler.class, PIDStoreStartHandler.class);
 
+    // Check if user has set up inbound NAT pool rules.
+    // If set, we prefer will launch driver that binds to port in InboundNATPool.
     final List<String> availablePorts = getAzureBatchInBoundNatPoolBackendPorts(
         injector.getInstance(SharedKeyBatchCredentialProvider.class).getCredentials(),
         injector.getNamedInstance(AzureBatchPoolId.class));
 
     if (availablePorts != null) {
       launcherConfigBuilder.bindList(TcpPortArray.class, availablePorts)
-          .bindImplementation(TcpPortProvider.class, ArrayTcpPortProvider.class);
+          .bindImplementation(TcpPortProvider.class, ListTcpPortProvider.class);
     }
 
     final Configuration launcherConfig = launcherConfigBuilder.build();
@@ -157,7 +159,7 @@ public final class AzureBatchBootstrapREEFLauncher {
     try {
       networkConfiguration = client.poolOperations().getPool(poolId).networkConfiguration();
     } catch (IOException e) {
-      LOG.log(Level.WARNING, "unable to setup Http Server with InBoundNatPool Port", e);
+      LOG.log(Level.WARNING, "Unable to setup Http Server with InBoundNATPool Port", e);
       return null;
     }
 

@@ -30,7 +30,6 @@ using Microsoft.Practices.TransientFaultHandling;
 #endif
 using Newtonsoft.Json;
 using Org.Apache.REEF.Client.API;
-using Org.Apache.REEF.Client.YARN.RestClient;
 using Org.Apache.REEF.Client.YARN.RestClient.DataModel;
 using Org.Apache.REEF.Utilities.Logging;
 using HttpClient = System.Net.Http.HttpClient;
@@ -48,6 +47,7 @@ namespace Org.Apache.REEF.Client.Common
         private const string AppKey = "app";
         private const string ThisIsStandbyRm = "This is standby RM";
         private const string AppJson = "application/json";
+        private const int DriverStatusIntervalInSecond = 4;
 
         protected string _appId;
 
@@ -101,8 +101,7 @@ namespace Org.Apache.REEF.Client.Common
                     return _driverUrl;
                 }
 
-                var policy = new RetryPolicy<AllErrorsTransientStrategy>(_numberOfRetries, _retryInterval);
-                _driverUrl = policy.ExecuteAction(() => GetDriverUrl(_filePath));
+                _driverUrl = GetDriverUrl(_filePath);
                 return _driverUrl;
             }
         }
@@ -147,8 +146,8 @@ namespace Org.Apache.REEF.Client.Common
 
             while (status.IsActive())
             {
-                // Add 2 seconds sleep in while loop
-                Task.Delay(TimeSpan.FromSeconds(2)).GetAwaiter().GetResult();
+                // Add 4 seconds sleep in while loop, which alligns with default headt beat interval.
+                Task.Delay(TimeSpan.FromSeconds(DriverStatusIntervalInSecond)).GetAwaiter().GetResult();
                 LOGGER.Log(Level.Info, "DriverStatus is " + status);
 
                 try

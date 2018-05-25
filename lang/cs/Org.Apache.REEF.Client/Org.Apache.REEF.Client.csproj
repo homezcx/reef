@@ -146,6 +146,7 @@ under the License.
     <Compile Include="AzureBatch\Util\JobJarMaker.cs" />
     <Compile Include="AzureBatch\Util\LinuxCommandBuilder.cs" />
     <Compile Include="AzureBatch\Util\WindowsCommandBuilder.cs" />
+    <Compile Include="Common\AllErrorsTransientStrategy.cs" />
     <Compile Include="Common\DotNetFile.cs" />
     <Compile Include="Common\ClientConstants.cs" />
     <Compile Include="Common\DriverFolderPreparationHelper.cs" />

@@ -18,7 +18,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.Azure.Batch;
+#if REEF_DOTNET_BUILD
+using Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling;
+#else
+using Microsoft.Practices.TransientFaultHandling;
+#endif
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Utilities.Logging;
@@ -33,6 +39,8 @@ namespace Org.Apache.REEF.Client.AzureBatch
         private readonly BatchClient _client;
         private readonly string _azureBatchPoolId;
         private readonly string _jobId;
+        private readonly int _numberOfRetries;
+        private readonly int _retryInterval;
 
         internal AzureBatchJobSubmissionResult(IREEFClient reefClient,
             string filePath,
@@ -46,13 +54,20 @@ namespace Org.Apache.REEF.Client.AzureBatch
         {
             _jobId = jobId;
             _azureBatchPoolId = azureBatchPoolId;
+            _numberOfRetries = numberOfRetries;
+            _retryInterval = retryInterval;
             BatchSharedKeyCredential credentials = new BatchSharedKeyCredential(azureBatchUrl, azureBatchAccountName, azureBatchAccountKey);
             _client = BatchClient.Open(credentials);
         }
 
         protected override string GetDriverUrl(string filepath)
         {
-            //// Get backend port
+            var policy = new RetryPolicy<AllErrorsTransientStrategy>(_numberOfRetries, TimeSpan.FromMilliseconds(_retryInterval));
+            return policy.ExecuteAction(() => GetDriverUrlInternal(filepath));
+        }
+
+        private string GetDriverUrlInternal(string filepath)
+        {
             string driverTaskId = _client.JobOperations.GetJob(_jobId).JobManagerTask.Id;
             CloudTask driverTask = _client.JobOperations.GetTask(_jobId, driverTaskId);
 
@@ -62,6 +77,8 @@ namespace Org.Apache.REEF.Client.AzureBatch
 
             //// Remove last charactor '\n'
             string driverHost = httpEndPoint.ReadAsString().Substring(0, driverHostData.Length - 1);
+
+            //// It is possible that IndexOutOfRangeException will be thrown. Exceptions will be ingorred and this function will be retried.
             string backendPort = driverHost.Split(':')[1];
 
             //// Get public Ip
@@ -70,14 +87,12 @@ namespace Org.Apache.REEF.Client.AzureBatch
             string driverNodeId = driverTask.ComputeNodeInformation.ComputeNodeId;
             ComputeNode driverNode = _client.PoolOperations.GetComputeNode(_azureBatchPoolId, driverNodeId);
             IReadOnlyList<InboundEndpoint> inboundEndpoints = driverNode.EndpointConfiguration.InboundEndpoints;
-            foreach (InboundEndpoint endpoint in inboundEndpoints)
+            InboundEndpoint endpoint = inboundEndpoints.FirstOrDefault(s => s.BackendPort.ToString().Equals(backendPort));
+
+            if (endpoint != null)
             {
-                if (endpoint.BackendPort.ToString().Equals(backendPort))
-                {
-                    publicIp = endpoint.PublicIPAddress;
-                    frontEndPort = endpoint.FrontendPort;
-                    break;
-                }
+                publicIp = endpoint.PublicIPAddress;
+                frontEndPort = endpoint.FrontendPort;
             }
 
             return "http://" + publicIp + ':' + frontEndPort + '/';
