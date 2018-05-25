@@ -21,7 +21,7 @@ package org.apache.reef.wake.remote.ports;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.reef.tang.annotations.Parameter;
-import org.apache.reef.wake.remote.ports.parameters.TcpPortArray;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortList;
 
 import javax.inject.Inject;
 import java.util.Iterator;
@@ -38,7 +38,7 @@ public final class ListTcpPortProvider implements TcpPortProvider {
   private final List<Integer> tcpPortList;
 
   @Inject
-  public ListTcpPortProvider(@Parameter(TcpPortArray.class) final List<Integer> tcpPortList) {
+  public ListTcpPortProvider(@Parameter(TcpPortList.class) final List<Integer> tcpPortList) {
     this.tcpPortList = tcpPortList;
     LOG.log(Level.FINE, "Instantiating " + this);
   }

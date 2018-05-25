@@ -41,7 +41,7 @@ import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.wake.remote.RemoteConfiguration;
 import org.apache.reef.wake.remote.ports.ListTcpPortProvider;
 import org.apache.reef.wake.remote.ports.TcpPortProvider;
-import org.apache.reef.wake.remote.ports.parameters.TcpPortArray;
+import org.apache.reef.wake.remote.ports.parameters.TcpPortList;
 import org.apache.reef.wake.time.Clock;
 
 import java.io.File;
@@ -103,7 +103,7 @@ public final class AzureBatchBootstrapREEFLauncher {
         injector.getNamedInstance(AzureBatchPoolId.class));
 
     if (availablePorts != null) {
-      launcherConfigBuilder.bindList(TcpPortArray.class, availablePorts)
+      launcherConfigBuilder.bindList(TcpPortList.class, availablePorts)
           .bindImplementation(TcpPortProvider.class, ListTcpPortProvider.class);
     }
 
@@ -152,7 +152,7 @@ public final class AzureBatchBootstrapREEFLauncher {
         .build();
   }
 
-  private static List<String> getAzureBatchInBoundNatPoolBackendPorts(BatchCredentials credentials, String poolId) {
+  private static List<String> getAzureBatchInBoundNatPoolBackendPorts(final BatchCredentials credentials, final String poolId) {
     final BatchClient client = BatchClient.open(credentials);
     final NetworkConfiguration networkConfiguration;
 

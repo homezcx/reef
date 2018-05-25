@@ -28,6 +28,7 @@ using Microsoft.Practices.TransientFaultHandling;
 using Org.Apache.REEF.Client.API;
 using Org.Apache.REEF.Client.Common;
 using Org.Apache.REEF.Utilities.Logging;
+using BatchErrorException = Microsoft.Azure.Batch.Protocol.Models.BatchErrorException;
 using BatchSharedKeyCredential = Microsoft.Azure.Batch.Auth.BatchSharedKeyCredentials;
 
 namespace Org.Apache.REEF.Client.AzureBatch
@@ -71,15 +72,34 @@ namespace Org.Apache.REEF.Client.AzureBatch
             string driverTaskId = _client.JobOperations.GetJob(_jobId).JobManagerTask.Id;
             CloudTask driverTask = _client.JobOperations.GetTask(_jobId, driverTaskId);
 
-            //// It could throw exception when Http end point file is not ready. Exceptions will be ingnored and this function will be retried.
-            NodeFile httpEndPoint = driverTask.GetNodeFile(Path.Combine(AzureBatchTaskWorkDirectory, filepath));
-            string driverHostData = httpEndPoint.ReadAsString();
+            NodeFile httpEndPointFile;
+            try
+            {
+                httpEndPointFile = driverTask.GetNodeFile(Path.Combine(AzureBatchTaskWorkDirectory, filepath));
+            }
+            catch (BatchErrorException e)
+            {
+                LOGGER.Log(Level.Warning, "unable to get driver http endpoint file", e);
+                return null;
+            }
+
+            string driverHostData = httpEndPointFile.ReadAsString();
 
             //// Remove last charactor '\n'
-            string driverHost = httpEndPoint.ReadAsString().Substring(0, driverHostData.Length - 1);
+            string driverHost = httpEndPointFile.ReadAsString().Substring(0, driverHostData.Length - 1);
 
-            //// It is possible that IndexOutOfRangeException will be thrown. Exceptions will be ingorred and this function will be retried.
-            string backendPort = driverHost.Split(':')[1];
+            //// Get port
+            string[] driverIpAndPorts = driverHost.Split(':');
+            string backendPort;
+            if (driverIpAndPorts.Length > 1)
+            {
+                backendPort = driverIpAndPorts[1];
+            }
+            else
+            {
+                LOGGER.Log(Level.Warning, "unable to get driver http endpoint port");
+                return null;
+            }
 
             //// Get public Ip
             string publicIp = "0.0.0.0";

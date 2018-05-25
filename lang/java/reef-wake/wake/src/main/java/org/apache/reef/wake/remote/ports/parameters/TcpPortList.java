@@ -24,14 +24,14 @@ import org.apache.reef.tang.annotations.NamedParameter;
 import java.util.List;
 
 /**
- * An array of tcp port numbers to try.
+ * An list of tcp port numbers to try.
  */
-@NamedParameter(doc = "An array of tcp port numbers to try")
-public final class TcpPortArray implements Name<List<Integer>> {
+@NamedParameter(doc = "An list of tcp port numbers to try")
+public final class TcpPortList implements Name<List<Integer>> {
 
   /**
    * Empty private constructor to prohibit instantiation of utility class.
    */
-  private TcpPortArray() {
+  private TcpPortList() {
   }
 }
