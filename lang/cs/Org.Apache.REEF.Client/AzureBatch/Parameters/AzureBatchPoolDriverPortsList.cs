@@ -19,7 +19,7 @@ using Org.Apache.REEF.Tang.Annotations;
 
 namespace Org.Apache.REEF.Client.AzureBatch.Parameters
 {
-    [NamedParameter(Documentation = "The Azure Batch Pool Driver Http Server Ports While List")]
+    [NamedParameter(Documentation = "The Azure Batch Pool Driver Http Server Ports List")]
     public sealed class AzureBatchPoolDriverPortsList : Name<IList<string>>
     {
     }
