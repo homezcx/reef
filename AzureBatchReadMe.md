@@ -119,3 +119,7 @@ Assume user's pool consists of 2 nodes, he will have such mapping established:
 
 To communicate to node1, port 2001, user will call through "13.66.208.20:101";
 To communicate to node2, port 2000, user will call through "13.66.208.20.2".
+
+#### Restrict the access when using InboundNATPool
+
+User can use NetworkSecurityGroupRules to setup which IPs should be allowed to be able to talk to the port from outside. Thus giving user ability to restrict who can contact the listener. An example is [here](https://docs.microsoft.com/en-us/azure/batch/pool-endpoint-configuration).
