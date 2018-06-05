@@ -100,18 +100,20 @@ reef\lang\cs\bin\.netcore\Debug\Org.Apache.REEF.Examples.HelloREEF\net461>Org.Ap
 The communication is enabled by Azure Batch feature [InboundNATPool](https://docs.microsoft.com/en-us/rest/api/batchservice/pool/add#inboundnatpool). User will need to define his InboundNATPool endpoints when setting up Azure Batch Pool. In addition, a list of possible ports user intends to use, among the backend ports, should be specified in AzureBatchRuntimeClientConfiguration, like in [HelloREEF.cs](https://github.com/homezcx/reef/blob/master/lang/cs/Org.Apache.REEF.Examples.HelloREEF/HelloREEF.cs).
 
 An InboundNATPool can define several InboundEndPoints:
+
 | Name | Backend Port | Frontend port range | Protocol |
 |-----------|:-----------:|:-----------:|:-----------:|
-| Endpoint1 | 2000 |  1-100 |  tcp |
-| Endpoint2 | 2001 |  101-200 |  tcp |
+| Endpoint1 | 2000 | 1-100 | tcp |
+| Endpoint2 | 2001 | 101-200 | tcp |
 
 In Endpoint1, it maps each VM's backend port 2000, to a frontend port number. In this case, frontend port range should be larger or equal to the number of VMs in the pool. User will be able to talk to the backend port through VM public IP and port. User can retrieve a node's public IP and frontend port through [Azure Batch ComputeNode InboundEndPoint](https://docs.microsoft.com/en-us/rest/api/batchservice/computenode/get#inboundendpoint).
 
 In REEF, since Driver-Client communication relies on backend ports that opens to public, the maxmium numbers of Driver task to be allowed running on the same node, is the number of backend ports defined in InboundNATPool.
 
 Assume user's pool consists of 2 nodes, he will have such mapping established:
+
 | Node Id and Endpoint| Public IP Address | Frontend port |
-|:-----------:|:-----------:|:-----------:|-----------|
+|:-----------:|:-----------:|:-----------:|
 | node1 Endpoint1 | 13.66.208.20| 1 |
 | node1 Endpoint2 | 13.66.208.20| 101 |
 | node2 Endpoint1 | 13.66.208.20| 2 |
