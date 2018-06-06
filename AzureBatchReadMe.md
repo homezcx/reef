@@ -2,28 +2,28 @@
 
 ## Prerequisites
 
-[You have compiled REEF locally](https://cwiki.apache.org/confluence/display/REEF/Building+REEF), and have [Azure Batch Pool](https://docs.microsoft.com/en-us/azure/batch/quick-create-portal#create-a-pool-of-compute-nodes) configured. It is suggested to use data-science-vm published by microsoft-ads, which has Java pre-installed.
+You have [compiled REEF](https://cwiki.apache.org/confluence/display/REEF/Building+REEF) locally, and have [Azure Batch Pool configured](https://docs.microsoft.com/en-us/azure/batch/quick-create-portal#create-a-pool-of-compute-nodes). See [communication configuration instructions](#How-to-configure-REEF-.NET-Driver-Client-communication-on-Azure-Batch) to enable external batch communication. It is suggested to use data-science-vm published by microsoft-ads, which has Java pre-installed.
 
 ## Running HelloREEF on Azure Batch using Java
 
 ### How to configure REEF Java on Azure Batch
 
-REEF Azure Batch runtime configuration is provided through a helper class [AzureBatchRuntimeConfiguration](https://github.com/apache/reef/blob/master/lang/java/reef-runtime-azbatch/src/main/java/org/apache/reef/runtime/azbatch/client/AzureBatchRuntimeConfiguration.java) reads avro configuration file.
+REEF Azure Batch runtime configuration is provided through a helper class ([AzureBatchRuntimeConfiguration.java](https://github.com/apache/reef/blob/master/lang/java/reef-runtime-azbatch/src/main/java/org/apache/reef/runtime/azbatch/client/AzureBatchRuntimeConfiguration.java)) which reads an avro configuration file.
 
-User can either set an system environment variable **REEF_AZBATCH_CONF** to an configuration file path, then call
+The configuration can either set a system environment variable **REEF_AZBATCH_CONF** or a direct file path.
 
+#### Load configuration through an environment variable:
 ```java
 Configuration config = AzureBatchRuntimeConfiguration.fromEnvironment();
 ```
 
-or provide its java.io.File class instance
-
+#### Load configuration through a file path:
 ```java
 String pathName = "./dummyFilePath";
 Configuration config = AzureBatchRuntimeConfiguration.fromTextFile(new File(pathName));
 ```
 
-A sample configuration file is:
+#### Sample configuration file:
 
 ```json
 {
@@ -47,7 +47,7 @@ A sample configuration file is:
     },
     {
       "key": "org.apache.reef.runtime.azbatch.parameters.AzureBatchPoolId",
-      "value": "LinuxPool"
+      "value": "myreefpool"
     },
     {
       "key": "org.apache.reef.runtime.azbatch.parameters.AzureStorageAccountName",
@@ -65,7 +65,7 @@ A sample configuration file is:
 }
 ```
 
-An example of configuration is [HelloReefAzBatch.java](https://github.com/apache/reef/blob/master/lang/java/reef-examples/src/main/java/org/apache/reef/examples/hello/HelloReefAzBatch.java).
+An example configuration can be seen in [HelloReefAzBatch.java](https://github.com/apache/reef/blob/master/lang/java/reef-examples/src/main/java/org/apache/reef/examples/hello/HelloReefAzBatch.java).
 
 ### How to launch HelloReefAzBatch
 
@@ -75,17 +75,15 @@ Running HelloReefAzBatch Java with no client:
 java -cp lang/java/reef-examples/target/reef-examples-{$REEF_VERSION}-SNAPSHOT-shaded.jar org.apache.reef.examples.hello.HelloReefAzBatch
 ```
 
-Due to current limitation of implentation, HelloReefAzBatch client is not supported unless client is running in one of Azure Batch node.
+**Warning:** Due to a limitation of the current implementation, HelloReefAzBatch client is not supported unless the client is running on an Azure Batch node.
 
 ## Running HelloREEF on Azure Batch using .NET
 
-### NOTE
-
-Only windows VM is supported.
+**Warning:** Only Windows VMs are supported.
 
 ### How to configure REEF .NET on Azure Batch
 
-Like running in REEF. Java on Azure Batch, an example is provided in [HelloREEF.cs](https://github.com/homezcx/reef/blob/master/lang/cs/Org.Apache.REEF.Examples.HelloREEF/HelloREEF.cs).
+Like running [REEF on Azure Batch using Java](#How-to-configure-REEF-Java-on-Azure-Batch), an example is provided in [HelloREEF.cs](https://github.com/homezcx/reef/blob/master/lang/cs/Org.Apache.REEF.Examples.HelloREEF/HelloREEF.cs).
 
 ### How to run REEF .NET on Azure Batch
 
@@ -97,29 +95,34 @@ reef\lang\cs\bin\.netcore\Debug\Org.Apache.REEF.Examples.HelloREEF\net461>Org.Ap
 
 ### How to configure REEF .NET Driver Client communication on Azure Batch
 
-The communication is enabled by Azure Batch feature [InboundNATPool](https://docs.microsoft.com/en-us/rest/api/batchservice/pool/add#inboundnatpool). User will need to define his InboundNATPool endpoints when setting up Azure Batch Pool. In addition, a list of possible ports user intends to use, among the backend ports, should be specified in AzureBatchRuntimeClientConfiguration, like in [HelloREEF.cs](https://github.com/homezcx/reef/blob/master/lang/cs/Org.Apache.REEF.Examples.HelloREEF/HelloREEF.cs).
+By default, an external entity cannot directly communicate with an Azure Batch node. In order to enable this communication, the Azure Batch Pool will need to have a configured [InboundNATPool](https://docs.microsoft.com/en-us/rest/api/batchservice/pool/add#inboundnatpool). 
 
-An InboundNATPool can define several InboundEndPoints:
+The InboundNATPool maps individual frontend ports to individual batch nodes. For REEF usage, you will need to account for the number of nodes in the batch pool and the number of tasks expected to run on a node. The Frontend port range must span the same number of ports as there will be nodes. Likewise, there must be the same number of InboundEndPoints as tasks you expect to run on a node. Once configured, the list of possible backend ports should be specified in AzureBatchRuntimeClientConfiguration; like in [HelloREEF.cs](https://github.com/homezcx/reef/blob/master/lang/cs/Org.Apache.REEF.Examples.HelloREEF/HelloREEF.cs).
+
+**Example InboundNATPool InboundEndPoints:**
 | Name | Backend Port | Frontend port range | Protocol |
 |-----------|:-----------:|:-----------:|:-----------:|
 | Endpoint1 | 2000 |  1-100 |  tcp |
 | Endpoint2 | 2001 |  101-200 |  tcp |
 
-In Endpoint1, it maps each VM's backend port 2000, to a frontend port number. In this case, frontend port range should be larger or equal to the number of VMs in the pool. User will be able to talk to the backend port through VM public IP and port. User can retrieve a node's public IP and frontend port through [Azure Batch ComputeNode InboundEndPoint](https://docs.microsoft.com/en-us/rest/api/batchservice/computenode/get#inboundendpoint).
+In Endpoint1, it maps each node's backend port (2000) to a frontend port number between 1 and 100. The client will then be able to talk to the backend port through the VM's public IP address and port, e.g. $(External IP):1 will map to $(Internal IP):2000. The user can retrieve a node's public IP address and frontend port through [Azure Batch ComputeNode InboundEndPoint](https://docs.microsoft.com/en-us/rest/api/batchservice/computenode/get#inboundendpoint).
 
-In REEF, since Driver-Client communication relies on backend ports that opens to public, the maxmium numbers of Driver task to be allowed running on the same node, is the number of backend ports defined in InboundNATPool.
+In REEF, since Driver-Client communication relies on backend ports that are open to the public, the maxmium numbers of Driver tasks that can run on the same node, is the number of backend ports defined in InboundNATPool. This configuration has two InboundEndPoints (Endpoint1 and Endpoint2) and therefore only two drivers can run on one node. If more than two drivers try to run on a node, there won't be enough ports available for port binding. 
 
-Assume user's pool consists of 2 nodes, he will have such mapping established:
-| Node Id and Endpoint| Public IP Address | Frontend port |
-|:-----------:|:-----------:|:-----------:|-----------|
-| node1 Endpoint1 | 13.66.208.20| 1 |
-| node1 Endpoint2 | 13.66.208.20| 101 |
-| node2 Endpoint1 | 13.66.208.20| 2 |
-| node2 Endpoint2 | 13.66.208.20| 102 |
+Likewise, this configuration has a frontend port range that spans 100 ports (1-100 and 101-200) and therefore only 100 nodes can properly use the port mappings. If more than 100 nodes are running tasks, they will run out of frontend ports for port mapping.
 
-To communicate to node1, port 2001, user will call through "13.66.208.20:101";
-To communicate to node2, port 2000, user will call through "13.66.208.20.2".
+Assume a user's pool consists of 2 nodes with the following mapping established:
+| Node Id | Endpoint| Public IP Address | Frontend port | Backend port |
+|:-----------:|:-----------:|:-----------:|:-----------:|-----------|
+| node1 | Endpoint1 | 13.0.0.20 | 1 | 2000 |
+| node1 | Endpoint2 | 13.0.0.20 | 101 | 2001 |
+| node2 | Endpoint1 | 13.0.0.20 | 2 | 2000 |
+| node2 | Endpoint2 | 13.0.0.20 | 102 | 2001 |
+
+To communicate to node1 on port 2001, the user will call through "13.0.0.20:101".
+
+To communicate to node2 on port 2000, the user will call through "13.0.0.20.2".
 
 #### Restrict the access when using InboundNATPool
 
-User can use NetworkSecurityGroupRules to setup which IPs should be allowed to be able to talk to the port from outside. Thus giving user ability to restrict who can contact the listener. An example is [here](https://docs.microsoft.com/en-us/azure/batch/pool-endpoint-configuration).
+User can use NetworkSecurityGroupRules to setup which IPs should be allowed to be able to talk to the port from outside; thus giving user ability to restrict who can contact the listener. An example can be found [here](https://docs.microsoft.com/en-us/azure/batch/pool-endpoint-configuration).
