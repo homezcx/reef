@@ -17,12 +17,17 @@
 
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.IO.FileSystem.AzureBlob.Parameters
+namespace Org.Apache.REEF.IO.FileSystem.AzureBlob.RetryPolicy.Exponential
 {
-    [NamedParameter("The connection string for Azure Storage")]
-    public sealed class AzureStorageConnectionString : Name<string>
+    public static class ExponentialRetryPolicyParameterNames
     {
-        private AzureStorageConnectionString()
+        [NamedParameter("The exponential retry count", "retryCount", defaultValue: "3")]
+        public class RetryCount : Name<int>
+        {
+        }
+
+        [NamedParameter("The exponential retry interval in seconds", "retryInterval", defaultValue: "4")]
+        public class RetryInterval : Name<double>
         {
         }
     }

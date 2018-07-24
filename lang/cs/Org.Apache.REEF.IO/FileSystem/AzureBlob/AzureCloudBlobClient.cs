@@ -32,6 +32,8 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
     internal sealed class AzureCloudBlobClient : ICloudBlobClient
     {
         private readonly CloudBlobClient _client;
+        private const string AzureBlobConnectionFormat = "DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1};";
+        private readonly BlobRequestOptions _requestOptions;
 
         public StorageCredentials Credentials 
         { 
@@ -39,11 +41,14 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
         }
 
         [Inject]
-        private AzureCloudBlobClient([Parameter(typeof(AzureStorageConnectionString))] string connectionString,
+        private AzureCloudBlobClient([Parameter(typeof(AzureBlobStorageAccountName))] string accountName,
+                                     [Parameter(typeof(AzureBlobStorageAccountKey))] string accountKey,
                                      IAzureBlobRetryPolicy retryPolicy)
         {
+            var connectionString = string.Format(AzureBlobConnectionFormat, accountName, accountKey);
             _client = CloudStorageAccount.Parse(connectionString).CreateCloudBlobClient();
             _client.DefaultRequestOptions.RetryPolicy = retryPolicy;
+            _requestOptions = new BlobRequestOptions() { RetryPolicy = retryPolicy };
         }
 
         public Uri BaseUri
@@ -54,18 +59,17 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob
         public ICloudBlob GetBlobReferenceFromServer(Uri blobUri)
         {
             var task = _client.GetBlobReferenceFromServerAsync(blobUri);
-            task.Wait();
             return task.Result;
         }
 
         public ICloudBlobContainer GetContainerReference(string containerName)
         {
-            return new AzureCloudBlobContainer(_client.GetContainerReference(containerName));
+            return new AzureCloudBlobContainer(_client.GetContainerReference(containerName), _requestOptions);
         }
 
         public ICloudBlockBlob GetBlockBlobReference(Uri uri)
         {
-            return new AzureCloudBlockBlob(uri, _client.Credentials);
+            return new AzureCloudBlockBlob(uri, _client.Credentials, _requestOptions);
         }
 
         public BlobResultSegment ListBlobsSegmented(

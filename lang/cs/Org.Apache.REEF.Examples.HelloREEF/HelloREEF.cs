@@ -114,6 +114,8 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                         .Set(HDInsightClientConfiguration.HDInsightUsernameParameter, @"foo")
                         .Set(HDInsightClientConfiguration.HDInsightUrlParameter, @"https://foo.azurehdinsight.net/")
                         .Set(HDInsightClientConfiguration.JobSubmissionDirectoryPrefix, $@"/{containerName}/tmp")
+                        .Set(AzureBlobFileSystemConfiguration.AccountName, blobStorageAccountName)
+                        .Set(AzureBlobFileSystemConfiguration.AccountKey, blobStorageAccountKey)
                         .Build();
                 case AzureBatch:
                     return AzureBatchRuntimeClientConfiguration.ConfigurationModule

@@ -17,13 +17,13 @@
 
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.IO.FileSystem.AzureDataLake.Parameters
+namespace Org.Apache.REEF.IO.FileSystem.AzureBlob.Parameters
 {
-    /// <summary>
-    /// The account FQDN to be used to connect to the data lake store
-    /// </summary>
-    [NamedParameter("The account FQDN to be used to connect to the data lake store")]
-    internal sealed class DataLakeStorageAccountName : Name<string>
+    [NamedParameter("The Azure Blob Storage account name")]
+    public sealed class AzureBlobStorageAccountName : Name<string>
     {
+        private AzureBlobStorageAccountName()
+        {
+        }
     }
 }

@@ -34,7 +34,7 @@ namespace Org.Apache.REEF.IO.FileSystem.AzureBlob.RetryPolicy
 
         public IRetryPolicy CreateInstance()
         {
-            return new ExponentialRetry();
+            return _retryPolicy;
         }
 
         public bool ShouldRetry(int currentRetryCount, int statusCode, Exception lastException, out TimeSpan retryInterval,
