@@ -14,37 +14,36 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
-using System;
-using System.Threading;
-using Org.Apache.REEF.Common.Tasks;
+using System.Net;
+using Org.Apache.REEF.Common.Telemetry;
+using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Tang.Annotations;
+using Org.Apache.REEF.Utilities;
+using Org.Apache.REEF.Utilities.Logging;
 
-namespace Org.Apache.REEF.Examples.HelloREEF
+namespace Org.Apache.REEF.Driver.Telemetry
 {
-    /// <summary>
-    /// A Task that merely prints a greeting and exits.
-    /// </summary>
-    public sealed class HelloTask : ITask
+    public class MetricsStatusHandler : IHttpHandler
     {
+        private static readonly Logger LOGGER = Logger.GetLogger(typeof(MetricsStatusHandler));
+        private readonly MetricsService _service;
+
         [Inject]
-        private HelloTask()
+        private MetricsStatusHandler(MetricsService service)
         {
+            _service = service;
         }
 
-        public void Dispose()
+        public string GetSpecification()
         {
-            Console.WriteLine("Disposed.");
+            return "metrics";
         }
 
-        public byte[] Call(byte[] memento)
+        public void OnHttpRequest(ReefHttpRequest requet, ReefHttpResponse response)
         {
-            while (true)
-            {
-                Thread.Sleep(3000);
-                Console.WriteLine("Hello, REEF!");
-            }
-            return null;
+            LOGGER.Log(Level.Info, "OnHttpRequest in MetricsStatusHandler is called.");
+            response.Status = HttpStatusCode.OK;
+            response.OutputStream = ByteUtilities.StringToByteArrays(_service.DumpMetrics());
         }
     }
 }

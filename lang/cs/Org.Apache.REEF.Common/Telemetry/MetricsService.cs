@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Org.Apache.REEF.Common.Context;
+using Org.Apache.REEF.Common.Metrics.MetricsSystem;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities;
 using Org.Apache.REEF.Utilities.Logging;
@@ -48,6 +49,8 @@ namespace Org.Apache.REEF.Common.Telemetry
         /// </summary>
         private readonly int _metricSinkThreshold;
 
+        private readonly IMetricsDataHandler _dataHandler;
+
         /// <summary>
         /// It can be bound with driver configuration as a context message handler
         /// </summary>
@@ -55,11 +58,19 @@ namespace Org.Apache.REEF.Common.Telemetry
         private MetricsService(
             [Parameter(typeof(MetricSinks))] ISet<IMetricsSink> metricsSinks,
             [Parameter(typeof(MetricSinkThreshold))] int metricSinkThreshold,
-            MetricsData metricsData)
+            MetricsData metricsData,
+            IMetricsDataHandler dataHandler)
         {
             _metricsSinks = metricsSinks;
             _metricSinkThreshold = metricSinkThreshold;
             _metricsData = metricsData;
+            _dataHandler = dataHandler;
+        }
+
+        public string DumpMetrics()
+        {
+
+            return _dataHandler.OnMetricsData(_metricsData.Serialize());
         }
 
         /// <summary>

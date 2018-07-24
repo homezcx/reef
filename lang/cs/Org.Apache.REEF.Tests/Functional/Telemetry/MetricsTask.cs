@@ -54,6 +54,12 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
                 metric2.AssignNewValue(i);
                 Thread.Sleep(10);
             }
+
+            while (true)
+            {
+                Thread.Sleep(10 * 1000);
+            }
+
             return null;
         }
 

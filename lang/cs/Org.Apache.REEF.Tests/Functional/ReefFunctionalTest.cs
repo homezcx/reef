@@ -26,6 +26,7 @@ using System.Timers;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Org.Apache.REEF.Client.API;
+using Org.Apache.REEF.Client.AzureBatch;
 using Org.Apache.REEF.Client.Local;
 using Org.Apache.REEF.Client.Yarn;
 using Org.Apache.REEF.Network;
@@ -71,7 +72,7 @@ namespace Org.Apache.REEF.Tests.Functional
 
         protected Task TimerTask { get; set; }
 
-        protected bool TestSuccess 
+        protected bool TestSuccess
         {
             get { return _testSuccess; }
             set { _testSuccess = value; }
@@ -105,9 +106,9 @@ namespace Org.Apache.REEF.Tests.Functional
                     TestTimer.Elapsed += PeriodicUploadLog;
                     TestTimer.Start();
                 });
-                TimerTask.Start(); 
+                TimerTask.Start();
             }
-            
+
             ValidationUtilities.ValidateEnvVariable("JAVA_HOME");
 
             if (!Directory.Exists(BinFolder))
@@ -151,7 +152,7 @@ namespace Org.Apache.REEF.Tests.Functional
             }
         }
 
-        public void Dispose() 
+        public void Dispose()
         {
             CleanUp();
         }
@@ -231,7 +232,7 @@ namespace Org.Apache.REEF.Tests.Functional
                 string[] successIndicators = lines.Where(s => s.Contains(message)).ToArray();
                 if (numberOfOccurrences > 0)
                 {
-                    Assert.True(numberOfOccurrences == successIndicators.Count(), 
+                    Assert.True(numberOfOccurrences == successIndicators.Count(),
                         "Expected number of message \"" + message + "\" occurrences " + numberOfOccurrences + " differs from actual " + successIndicators.Count());
                 }
                 else if (numberOfOccurrences == 0)
@@ -310,7 +311,7 @@ namespace Org.Apache.REEF.Tests.Functional
             string driverStderr = GetLogFileName(DriverStderr);
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(GetStorageConnectionString());
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-            CloudBlobContainer container = blobClient.GetContainerReference(DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));   
+            CloudBlobContainer container = blobClient.GetContainerReference(DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
             container.CreateIfNotExistsAsync().Wait();
 
             CloudBlockBlob blob = container.GetBlockBlobReference(Path.Combine(TestId, "driverStdOut"));
@@ -372,30 +373,25 @@ namespace Org.Apache.REEF.Tests.Functional
                 .SetJobIdentifier(jobIdentifier)
                 .Build();
 
-            reefClient.SubmitAndGetJobStatus(jobSubmission);
+            reefClient.SubmitAndGetJobStatus(jobSubmission).WaitForDriverToFinish();
         }
 
         private IConfiguration GetRuntimeConfiguration(string runOnYarn, int numberOfEvaluator, string runtimeFolder)
         {
-            switch (runOnYarn)
-            {
-                case Local:
-                    var dir = Path.Combine(".", runtimeFolder);
-                    var localClientConfig = LocalRuntimeClientConfiguration.ConfigurationModule
-                        .Set(LocalRuntimeClientConfiguration.NumberOfEvaluators, numberOfEvaluator.ToString())
-                        .Set(LocalRuntimeClientConfiguration.RuntimeFolder, dir)
-                        .Build();
-                    return Configurations.Merge(localClientConfig, GetTcpConnectionConfiguration());
-                case YARN:
-                    var yarnClientConfig = YARNClientConfiguration.ConfigurationModule.Build();
-                    var tcpPortConfig = TcpPortConfigurationModule.ConfigurationModule
-                       .Set(TcpPortConfigurationModule.PortRangeStart, PortRangeStart)
-                       .Set(TcpPortConfigurationModule.PortRangeCount, PortRangeCount)
-                       .Build();
-                    return Configurations.Merge(yarnClientConfig, tcpPortConfig, GetTcpConnectionConfiguration());
-                default:
-                    throw new Exception("Unknown runtime: " + runOnYarn);
-            }
+            return AzureBatchRuntimeClientConfiguration.ConfigurationModule
+                        .Set(AzureBatchRuntimeClientConfiguration.AzureBatchAccountKey, @"##########################################")
+                        .Set(AzureBatchRuntimeClientConfiguration.AzureBatchAccountName, @"######")
+                        .Set(AzureBatchRuntimeClientConfiguration.AzureBatchAccountUri, @"######################")
+                        .Set(AzureBatchRuntimeClientConfiguration.AzureBatchPoolId, @"######")
+                        .Set(AzureBatchRuntimeClientConfiguration.AzureStorageAccountKey, @"##########################################")
+                        .Set(AzureBatchRuntimeClientConfiguration.AzureStorageAccountName, @"############")
+                        .Set(AzureBatchRuntimeClientConfiguration.AzureStorageContainerName, @"###########")
+                //// Extend default retry interval in Azure Batch
+                .Set(AzureBatchRuntimeClientConfiguration.DriverHTTPConnectionRetryInterval, "20000")
+                //// To allow Driver - Client communication, please specify the ports to use to set up driver http server.
+                //// These ports must be defined in Azure Batch InBoundNATPool.
+                .Set(AzureBatchRuntimeClientConfiguration.AzureBatchPoolDriverPortsList, new List<string>(new string[] { "2000", "2001" }))
+                .Build();
         }
 
         protected virtual IConfiguration GetTcpConnectionConfiguration()

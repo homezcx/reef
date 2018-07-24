@@ -20,6 +20,7 @@ using System.Diagnostics;
 using Org.Apache.REEF.Common.Context;
 using Org.Apache.REEF.Common.Evaluator.DriverConnectionConfigurationProviders;
 using Org.Apache.REEF.Common.Evaluator.Parameters;
+using Org.Apache.REEF.Common.Metrics.MetricsSystem;
 using Org.Apache.REEF.Driver.Bridge;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Evaluator;
@@ -186,6 +187,11 @@ namespace Org.Apache.REEF.Driver
         /// </summary>
         public static readonly OptionalImpl<IProgressProvider> ProgressProvider = new OptionalImpl<IProgressProvider>();
 
+        /// <summary>
+        /// The metrics data post processor.
+        /// </summary>
+        public static readonly OptionalImpl<IMetricsDataHandler> OnMetricsData = new OptionalImpl<IMetricsDataHandler>();
+
         public static ConfigurationModule ConfigurationModule
         {
             get
@@ -236,6 +242,7 @@ namespace Org.Apache.REEF.Driver
                         GenericType<EvaluatorConfigurationProviders>.Class, GenericType<EvaluatorLogLevelProvider>.Class)
                     .BindImplementation(GenericType<IDriverReconnConfigProvider>.Class, DriverReconnectionConfigurationProvider)
                     .BindImplementation(GenericType<IProgressProvider>.Class, ProgressProvider)
+                    .BindImplementation(GenericType<IMetricsDataHandler>.Class, OnMetricsData)
                     .Build();
             }
         }

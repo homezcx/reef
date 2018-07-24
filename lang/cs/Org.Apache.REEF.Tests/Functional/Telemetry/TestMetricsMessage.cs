@@ -55,6 +55,7 @@ namespace Org.Apache.REEF.Tests.Functional.Telemetry
                 .Set(DriverConfiguration.OnContextActive, GenericType<MetricsDriver>.Class)
                 .Set(DriverConfiguration.OnTaskCompleted, GenericType<MetricsDriver>.Class)
                 .Set(DriverConfiguration.CustomTraceLevel, Level.Info.ToString())
+                .Set(DriverConfiguration.OnMetricsData, GenericType<TestMetricsDataHandler>.Class)
                 .Build();
 
             var metricServiceConfig = MetricsServiceConfigurationModule.ConfigurationModule

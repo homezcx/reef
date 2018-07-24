@@ -104,16 +104,16 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                     return YARNClientConfiguration.ConfigurationModuleYARNRest.Build();
                 case HDInsight:
                     // To run against HDInsight please replace placeholders below, with actual values for
-                    // connection string, container name (available at Azure portal) and HDInsight
+                    // blob storage account name and key, container name (available at Azure portal) and HDInsight
                     // credentials (username and password)
-                    const string connectionString = "ConnString";
-                    const string continerName = "foo";
+                    const string blobStorageAccountName = "name";
+                    const string blobStorageAccountKey = "key";
+                    const string containerName = "foo";
                     return HDInsightClientConfiguration.ConfigurationModule
                         .Set(HDInsightClientConfiguration.HDInsightPasswordParameter, @"pwd")
                         .Set(HDInsightClientConfiguration.HDInsightUsernameParameter, @"foo")
                         .Set(HDInsightClientConfiguration.HDInsightUrlParameter, @"https://foo.azurehdinsight.net/")
-                        .Set(HDInsightClientConfiguration.JobSubmissionDirectoryPrefix, string.Format(@"/{0}/tmp", continerName))
-                        .Set(AzureBlockBlobFileSystemConfiguration.ConnectionString, connectionString)
+                        .Set(HDInsightClientConfiguration.JobSubmissionDirectoryPrefix, $@"/{containerName}/tmp")
                         .Build();
                 case AzureBatch:
                     return AzureBatchRuntimeClientConfiguration.ConfigurationModule
@@ -128,7 +128,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
                         .Set(AzureBatchRuntimeClientConfiguration.DriverHTTPConnectionRetryInterval, "20000")
                         //// To allow Driver - Client communication, please specify the ports to use to set up driver http server.
                         //// These ports must be defined in Azure Batch InBoundNATPool.
-                        .Set(AzureBatchRuntimeClientConfiguration.AzureBatchPoolDriverPortsList, new List<string>(new string[] { "123", "456" }))
+                        .Set(AzureBatchRuntimeClientConfiguration.AzureBatchPoolDriverPortsList, new List<string>(new string[] { "2000", "2001" }))
                         .Build();
 
                 default:
@@ -138,7 +138,7 @@ namespace Org.Apache.REEF.Examples.HelloREEF
 
         public static void MainSimple(string[] args)
         {
-            var runtime = args.Length > 0 ? args[0] : Local;
+            var runtime = args.Length > 0 ? args[0] : AzureBatch;
 
             // Execute the HelloREEF, with these parameters injected
             TangFactory.GetTang()

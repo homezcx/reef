@@ -20,10 +20,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Org.Apache.REEF.Common.Context;
+using Org.Apache.REEF.Common.Metrics.MetricsSystem;
 using Org.Apache.REEF.Driver.Context;
 using Org.Apache.REEF.Driver.Defaults;
 using Org.Apache.REEF.Driver.Evaluator;
 using Org.Apache.REEF.Driver.Task;
+using Org.Apache.REEF.Driver.Telemetry;
 using Org.Apache.REEF.Tang.Annotations;
 using Org.Apache.REEF.Utilities.Attributes;
 
@@ -59,7 +61,7 @@ namespace Org.Apache.REEF.Driver.Bridge
         {
         }
 
-        [NamedParameter(documentation: "Called when evaluator is requested.")] 
+        [NamedParameter(documentation: "Called when evaluator is requested.")]
         public class EvaluatorRequestHandlers : Name<ISet<IObserver<IEvaluatorRequestor>>>
         {
         }
@@ -99,7 +101,7 @@ namespace Org.Apache.REEF.Driver.Bridge
         {
         }
 
-        [NamedParameter(documentation: "Http Event Handlers.", defaultClasses: new[] { typeof(DefaultHttpHandler) })]
+        [NamedParameter(documentation: "Http Event Handlers.", defaultClasses: new[] { typeof(DefaultHttpHandler), typeof(MetricsStatusHandler) })]
         public class HttpEventHandlers : Name<ISet<IHttpHandler>>
         {
         }
@@ -159,5 +161,11 @@ namespace Org.Apache.REEF.Driver.Bridge
         public class TraceLevel : Name<string>
         {
         }
+
+        /*
+        [NamedParameter(documentation: "Metrics Data Handlers.", defaultClass: typeof(DefaultMetricsDataHandler))]
+        public class MetricsDataHandler : Name<IMetricsDataHandler>
+        {
+        }*/
     }
 }

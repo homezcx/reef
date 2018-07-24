@@ -15,36 +15,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
-using System;
-using System.Threading;
-using Org.Apache.REEF.Common.Tasks;
 using Org.Apache.REEF.Tang.Annotations;
 
-namespace Org.Apache.REEF.Examples.HelloREEF
+namespace Org.Apache.REEF.Common.Metrics.MetricsSystem
 {
-    /// <summary>
-    /// A Task that merely prints a greeting and exits.
-    /// </summary>
-    public sealed class HelloTask : ITask
+    public class DefaultMetricsDataHandler : IMetricsDataHandler
     {
         [Inject]
-        private HelloTask()
+        private DefaultMetricsDataHandler()
         {
         }
 
-        public void Dispose()
+        public string OnMetricsData(string rawData)
         {
-            Console.WriteLine("Disposed.");
-        }
-
-        public byte[] Call(byte[] memento)
-        {
-            while (true)
-            {
-                Thread.Sleep(3000);
-                Console.WriteLine("Hello, REEF!");
-            }
-            return null;
+            return rawData;
         }
     }
 }
